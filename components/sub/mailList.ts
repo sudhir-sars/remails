@@ -763,7 +763,9 @@ const NavComponents = {
   Drafts: mailList.filter(mail => mail.tag === 'Drafts'),
   Junk: mailList.filter(mail => mail.tag === 'Junk'),
   Trash: mailList.filter(mail => mail.tag === 'Trash'),
-  Archive: mailList.filter(mail => mail.tag === 'Archive')
+  Archive: mailList.filter(mail => mail.tag === 'Archive'),
+  Spam: mailList.filter(mail => mail.tag === 'Spam'),
+  Unread: mailList.filter(mail => mail.tag === 'Unread')
 };
 
 export type NavComponentKeys = keyof typeof NavComponents;

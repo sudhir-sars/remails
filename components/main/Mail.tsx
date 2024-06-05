@@ -146,6 +146,7 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
                   mailList={NavComponents[selectedNavItem]}
                   setSelectedMailItem={setSelectedMailItem}
                   selectedMailItem={selectedMailItem ?? null}
+                  setNavSelectedItem={setNavSelectedItem}
                 />
               </span>
             </div>

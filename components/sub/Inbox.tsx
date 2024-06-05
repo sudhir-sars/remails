@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search } from 'lucide-react';
+import { NavComponentKeys } from '../sub/mailList';
 
 interface MailProps {
   id: string;
@@ -21,11 +22,13 @@ interface InboxProps {
   mailList: MailProps[];
   setSelectedMailItem: (mail: MailProps) => void;
   selectedMailItem: MailProps | null;
+  setNavSelectedItem: (item: NavComponentKeys) => void;
 }
 const Inbox: React.FC<InboxProps> = ({
   mailList,
   setSelectedMailItem,
   selectedMailItem,
+  setNavSelectedItem,
 }) => {
   const [selectedMailId, setSelectedMailId] = useState<number | null>(null);
 
@@ -40,8 +43,30 @@ const Inbox: React.FC<InboxProps> = ({
         <span className="font-bold text-xl">{'Inbox'}</span>
         <Tabs defaultValue="account" className="">
           <TabsList>
-            <TabsTrigger value="account">All Mail</TabsTrigger>
-            <TabsTrigger value="password">Unread</TabsTrigger>
+            <TabsTrigger
+              onClick={() => setNavSelectedItem('Inbox')}
+              value="all_mail"
+            >
+              All Mail
+            </TabsTrigger>
+            <TabsTrigger
+              onClick={() => setNavSelectedItem('Unread')}
+              value="unread"
+            >
+              Unread
+            </TabsTrigger>
+            <TabsTrigger
+              onClick={() => setNavSelectedItem('Sent')}
+              value="sent"
+            >
+              Sent
+            </TabsTrigger>
+            <TabsTrigger
+              onClick={() => setNavSelectedItem('Spam')}
+              value="spam"
+            >
+              Spam
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
