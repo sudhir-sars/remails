@@ -1,53 +1,77 @@
 'use client';
 
 import * as React from 'react';
+import { useEffect } from 'react';
 
 import { cn } from '@/lib/utils';
+import { FcGoogle } from 'react-icons/fc';
 import { Icons } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
+import { useSearchParams } from 'next/navigation';
+import { SiMicrosoft } from 'react-icons/si';
+import { v4 as uuidv4 } from 'uuid';
+import { createTempSession, verifySessionId } from '@/utils/session';
+import { useRouter } from 'next/router';
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoadingG, setIsLoadingG] = React.useState<boolean>(false);
+  const [isLoadingM, setIsLoadingM] = React.useState<boolean>(false);
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get('sessionId');
 
-  async function onSubmit(event: React.SyntheticEvent) {
+  // const router = useRouter();
+
+  const handleLoginGoogle = async (event: React.SyntheticEvent) => {
     event.preventDefault();
-    setIsLoading(true);
+    setIsLoadingG(true);
+
+    const sessionId = await createTempSession();
+    // setLocal(sessionId);
+    if (sessionId) {
+      try {
+        console.log(`session id for temp: ${sessionId}`);
+
+        const authUrl = `/api/auth?sessionId=${sessionId}`;
+        window.location.href = authUrl;
+        // window.open(authUrl, '_blank', 'width=500,height=500');
+        setTimeout(() => {
+          setIsLoadingG(false);
+        }, 3000);
+      } catch {
+        console.log('error');
+      }
+    }
+  };
+
+  const HandleLoginMicrosoft = (event: React.SyntheticEvent) => {
+    event.preventDefault();
+    setIsLoadingM(true);
 
     setTimeout(() => {
-      setIsLoading(false);
+      setIsLoadingM(false);
     }, 3000);
-  }
+  };
 
   return (
     <div className={cn('grid gap-6', className)} {...props}>
-      <form onSubmit={onSubmit}>
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
-            <Input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              disabled={isLoading}
-            />
-          </div>
-          <Button disabled={isLoading}>
-            {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Sign In with Email
-          </Button>
-        </div>
-      </form>
+      <div className="grid gap-2">
+        <Button
+          onClick={handleLoginGoogle}
+          disabled={isLoadingG}
+          className="flex items-center justify-center"
+        >
+          {isLoadingG ? (
+            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <FcGoogle className="mr-4 text-xl" />
+          )}
+          Sign In with Google
+        </Button>
+      </div>
+
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />
@@ -58,13 +82,19 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </span>
         </div>
       </div>
-      <Button variant="outline" type="button" disabled={isLoading}>
-        {isLoading ? (
+      <Button
+        onClick={HandleLoginMicrosoft}
+        variant="outline"
+        type="button"
+        disabled={isLoadingM}
+        className="flex items-center justify-center"
+      >
+        {isLoadingM ? (
           <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
         ) : (
-          <Icons.gitHub className="mr-2 h-4 w-4" />
+          <SiMicrosoft className=" mr-2  text-lg " />
         )}{' '}
-        GitHub
+        Microsoft
       </Button>
     </div>
   );

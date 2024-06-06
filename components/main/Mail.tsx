@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Inbox from '../sub/Inbox';
 import {
   NavComponents,
@@ -9,6 +9,12 @@ import {
 } from '../sub/mailList';
 import { Separator } from '@/components/ui/separator';
 import MailView from '../sub/MailView';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 import {
   ResizableHandle,
@@ -71,6 +77,10 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
     setSelectedMailItem(item);
   };
 
+  useEffect(() => {
+    setNavSelectedItem('Inbox');
+  }, []);
+
   return (
     <>
       <div className="mt-11 w-full flex justify-center h-[91vh]">
@@ -104,7 +114,9 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
                       variant="ghost"
                       key={item.label}
                       onClick={() => handleClickNavItem(item.label)}
-                      className="rounded-md flex w-full justify-start"
+                      className={`rounded-md flex w-full justify-start border ${
+                        selectedNavItem == item.label
+                      }?" bg-black": "bg-black"`}
                     >
                       <div className="flex items-center">
                         <span>{item.icon}</span>
@@ -123,7 +135,9 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
                         variant="ghost"
                         key={item.label}
                         onClick={() => handleClickNavItem(item.label)}
-                        className="rounded-md flex w-full justify-start"
+                        className={`rounded-md flex w-full justify-start ${
+                          selectedNavItem == item.label
+                        }?""`}
                       >
                         <div className="flex items-center">
                           <span>{item.icon}</span>

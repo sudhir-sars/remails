@@ -1,11 +1,13 @@
+// File: /app/api/auth/main.ts
 import { NextResponse, NextRequest } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
-import { google } from 'googleapis';
+import {  setTempSession } from '../../../utils/session';
 
 // Replace with your credentials
-const CLIENT_ID = '453820533420-8bc3787ivpb4fm527991kgsqoepp6ko6.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REDIRECT_URI = `http://localhost:3000/api/auth/callback`;
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+const CLIENT_SECRET = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET
+const REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI
+const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET
 
 const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 const SCOPES = [
@@ -15,13 +17,26 @@ const SCOPES = [
   'https://www.googleapis.com/auth/calendar',
 ];
 
-
 export const GET = async (req: NextRequest) => {
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES,
-  });
-  return NextResponse.redirect(authUrl);
+  console.log(CLIENT_ID)
+  console.log(CLIENT_SECRET)
+  console.log(REDIRECT_URI)
+  console.log(JWT_SECRET)
+  const url = new URL(req.url);
+  const sessionId = url.searchParams.get('sessionId');
+  console.log(sessionId);
+
+  if (sessionId) {
+    // await setTempSession(sessionId, { auth: "pending" });
+
+    const authUrl = oAuth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: SCOPES,
+      state: JSON.stringify({ sessionId }),
+    });
+
+    return NextResponse.redirect(authUrl);
+  }
+
+  return NextResponse.json({ success: false, status: 400, statusText: 'Missing sessionId' });
 };
-
-

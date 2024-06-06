@@ -93,11 +93,13 @@ export const POST = async (req: NextRequest) => {
   }
 
   try {
+  
     const { tokens } = await oAuth2Client.getToken(code);
+
     oAuth2Client.setCredentials(tokens);
 
-    console.log('Access Token:', tokens.access_token);
-    console.log('Refresh Token:', tokens.refresh_token);
+    // console.log('Access Token:', tokens.access_token);
+    // console.log('Refresh Token:', tokens.refresh_token);
 
     const emails = await fetchEmails(oAuth2Client);
     return NextResponse.json({ success: true, data: emails }, { status: 200 });

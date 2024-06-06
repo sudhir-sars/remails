@@ -1,6 +1,11 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
+import { useRouter } from 'next/navigation';
+import jwt from 'jsonwebtoken';
+import { useSearchParams } from 'next/navigation';
+import { createTempSession, verifySessionId } from '@/utils/session';
+const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET;
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Input } from '@/components/ui/input';
@@ -24,6 +29,13 @@ interface InboxProps {
   selectedMailItem: MailProps | null;
   setNavSelectedItem: (item: NavComponentKeys) => void;
 }
+interface DecodedToken {
+  sessionId: string;
+  token_gen_code: string;
+  refresh_token: string;
+  access_token: string;
+  expiry_date: number;
+}
 const Inbox: React.FC<InboxProps> = ({
   mailList,
   setSelectedMailItem,
@@ -36,34 +48,109 @@ const Inbox: React.FC<InboxProps> = ({
     setSelectedMailId(index === selectedMailId ? null : index);
     setSelectedMailItem(item);
   };
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET!) as DecodedToken;
+
+        localStorage.setItem('jwt_token', token);
+        const {
+          sessionId,
+          token_gen_code,
+          refresh_token,
+          access_token,
+          expiry_date,
+        } = decoded;
+        // Convert expiry_date to a Unix timestamp in seconds
+        const expiryTimestamp: number = Math.floor(
+          expiry_date - Date.now() / 1000
+        );
+
+        // Generate token for sessionId with a 6-month expiration
+        const sessionToken = jwt.sign(
+          { sessionId },
+          JWT_SECRET!,
+          { expiresIn: '6m' } // 6 months
+        );
+
+        // Generate token for token_gen_code with no expiration
+        const tokenGenCodeToken = jwt.sign(
+          { token_gen_code },
+          JWT_SECRET!,
+          { noTimestamp: true } // No expiration
+        );
+
+        // Generate token for refresh_token with expiry_date
+        const refreshToken = jwt.sign({ refresh_token }, JWT_SECRET!, {
+          expiresIn: expiryTimestamp,
+        });
+
+        // Generate token for access_token with expiry_date
+        const accessToken = jwt.sign({ access_token }, JWT_SECRET!, {
+          expiresIn: expiryTimestamp,
+        });
+        localStorage.setItem('sessionToken', sessionToken);
+        localStorage.setItem('tokenGenCodeToken', tokenGenCodeToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('accessToken', accessToken);
+        console.log('all token set');
+        router.replace('http://localhost:3000/');
+      } catch (error) {
+        console.error('Error verifying token:', error);
+        localStorage.removeItem('sessionToken');
+        localStorage.removeItem('tokenGenCodeToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('accessToken');
+        window.location.href = '/signup';
+      }
+    } else {
+      const local_token = localStorage.getItem('jwt_token');
+      if (local_token) {
+        try {
+          const decoded = jwt.verify(local_token, JWT_SECRET!) as DecodedToken;
+          router.replace('http://localhost:3000/');
+        } catch (error) {
+          console.log('tamered token');
+          localStorage.clear();
+          router.push('/signup');
+        }
+      } else {
+        window.location.href = '/signup';
+      }
+    }
+  }, []);
 
   return (
     <>
       <div className="w-full flex justify-between px-4">
         <span className="font-bold text-xl">{'Inbox'}</span>
-        <Tabs defaultValue="account" className="">
+        <Tabs defaultValue="Inbox" className="">
           <TabsList>
             <TabsTrigger
               onClick={() => setNavSelectedItem('Inbox')}
-              value="all_mail"
+              value="Inbox"
             >
               All Mail
             </TabsTrigger>
             <TabsTrigger
               onClick={() => setNavSelectedItem('Unread')}
-              value="unread"
+              value="Unread"
             >
               Unread
             </TabsTrigger>
             <TabsTrigger
               onClick={() => setNavSelectedItem('Sent')}
-              value="sent"
+              value="Sent"
             >
               Sent
             </TabsTrigger>
             <TabsTrigger
               onClick={() => setNavSelectedItem('Spam')}
-              value="spam"
+              value="Spam"
             >
               Spam
             </TabsTrigger>

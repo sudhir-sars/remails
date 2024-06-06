@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
-
+import { ThemeToggle } from './Theme';
 const Menu: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
@@ -12,7 +12,7 @@ const Menu: React.FC = () => {
 
   return (
     <>
-      <div className="fixed">
+      <div className="fixed flex justify-between  w-full">
         <ul className="flex  text-sm text-muted-foreground font-medium pt-3 pl-5">
           {['Mail', 'Dashboard', 'Tasks', 'Calendar', 'Notes', 'Upcoming'].map(
             (item) => (
@@ -28,6 +28,7 @@ const Menu: React.FC = () => {
             )
           )}
         </ul>
+        <ThemeToggle />
       </div>
     </>
   );
