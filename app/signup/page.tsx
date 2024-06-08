@@ -4,12 +4,12 @@ import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
-import { UserAuthForm } from '../../components/sub/user-auth-form';
+import { UserAuthForm } from '@/components/login/user-auth-form';
 
 const Login: React.FC = () => {
   return (
     <div className="min-h-screen">
-      <div className="container relative hidden min-h-screen border border-red-400 flex-col items-center justify-center md:grid lg:max-w-full lg:grid-cols-2 lg:px-0">
+      <div className="container relative hidden min-h-screen flex-col items-center justify-center md:grid lg:max-w-full lg:grid-cols-2 lg:px-0">
         <Link
           href="/examples/authentication"
           className={cn(

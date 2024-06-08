@@ -11,7 +11,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search } from 'lucide-react';
-import { NavComponentKeys } from '../sub/mailList';
+import { NavComponentKeys } from './mailList';
 
 interface MailProps {
   id: string;

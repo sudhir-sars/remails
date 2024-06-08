@@ -15,13 +15,12 @@ const SCOPES = [
   'https://www.googleapis.com/auth/meetings.space.created',
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile',
 ];
 
 export const GET = async (req: NextRequest) => {
-  console.log(CLIENT_ID)
-  console.log(CLIENT_SECRET)
-  console.log(REDIRECT_URI)
-  console.log(JWT_SECRET)
+ 
   const url = new URL(req.url);
   const sessionId = url.searchParams.get('sessionId');
   console.log(sessionId);

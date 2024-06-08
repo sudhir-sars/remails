@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useEffect } from 'react';
 import {
   AlertCircle,
   Archive,
@@ -32,6 +33,7 @@ import { MailList } from './mail-list';
 import { Nav } from './nav';
 import { type Mail } from '../data';
 import { useMail } from '../use-mail';
+import { Url } from 'url';
 
 interface MailProps {
   accounts: {
@@ -47,6 +49,7 @@ interface MailProps {
 
 export function Mail({
   accounts,
+
   mails,
   defaultLayout = [265, 440, 655],
   defaultCollapsed = false,
@@ -193,6 +196,12 @@ export function Mail({
                   className="text-zinc-600 dark:text-zinc-200"
                 >
                   Unread
+                </TabsTrigger>
+                <TabsTrigger
+                  value="spam"
+                  className="text-zinc-600 dark:text-zinc-200"
+                >
+                  Spam
                 </TabsTrigger>
               </TabsList>
             </div>

@@ -29,19 +29,19 @@ export const GET = async (req: NextRequest) => {
 
   try {
     const { tokens } = await oAuth2Client.getToken(token_gen_code);
-    const {refresh_token,access_token,expiry_date}=tokens
+    const {refresh_token}=tokens
+    const refreshToken=refresh_token
     // Create a JWT with the tokens and session ID as payload
     const payload = {
-      token_gen_code,
-      access_token,
-      refresh_token,
+           
+      refreshToken,
       sessionId,
-      expiry_date
+    
     };
     const token = jwt.sign(payload, JWT_SECRET!, { expiresIn: '1h' });
 
     // Construct the redirect URL with the JWT as a query parameter
-    const redirectUrl = `http://localhost:3000/?token=${token}`;
+    const redirectUrl = `http://localhost:3000/?JWT_token=${token}`;
 
     // Return response with cookie set
     return NextResponse.redirect(redirectUrl);

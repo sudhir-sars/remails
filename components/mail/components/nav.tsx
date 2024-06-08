@@ -2,7 +2,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
-
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -23,8 +23,9 @@ interface NavProps {
 
 export function Nav({ links, isCollapsed }: NavProps) {
   const [navSeletedItem, setnavSeletedItem] = React.useState('Inbox');
-  const handleNavButtonClick = (link: string) => {
-    setnavSeletedItem(link.title);
+  const handleNavButtonClick = (title: string) => {
+    console.log(title);
+    setnavSeletedItem(title);
   };
 
   return (
@@ -59,36 +60,41 @@ export function Nav({ links, isCollapsed }: NavProps) {
               </TooltipContent>
             </Tooltip>
           ) : (
-            <div
+            <Button
               key={index}
-              // onClick={handleNavButtonClick(link.title)}
-              className={cn(
-                buttonVariants({ variant: link.variant, size: 'sm' }),
-                navSeletedItem === link.title
-                  ? 'dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white'
-                  : '',
-                'justify-start'
-              )}
+              variant={'ghost'}
+              className={`flex  justify-start hover:bg-border gap-2  hover:text-primary dark:text-muted-foreground  dark:hover:bg-muted rounded-lg  p-3 text-left text-sm transition-all '
+                ${
+                  navSeletedItem == link.title &&
+                  'bg-primary text-muted-foreground hover:bg-primary hover:text-accent  text-white dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:text-white'
+                }`}
+              onClick={() => {
+                console.log('here');
+                handleNavButtonClick(link.title);
+              }}
             >
               <link.icon className="mr-2 h-4 w-4" />
               {link.title}
               {link.label && (
                 <span
                   className={cn(
-                    'ml-auto',
-                    link.variant === 'default' &&
-                      'text-background dark:text-white'
+                    'ml-auto hover:text-accent ',
+                    link.variant === 'default' && ' dark:text-white '
                   )}
                 >
                   {link.label}
                 </span>
               )}
-            </div>
+            </Button>
+            // <Button
+            //   variant="ghost"
+            //   key={index}
+            //   className={`flex justify-start rounded-lg `}
+            // >
+
+            // </Button>
           )
         )}
-        <div className="dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white w-full">
-          adadc
-        </div>
       </nav>
     </div>
   );
