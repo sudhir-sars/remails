@@ -1,9 +1,7 @@
-'use client';
-
-import * as React from 'react';
+// components/ui/Theme.tsx
+import React from 'react';
 import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
 import { useTheme } from 'next-themes';
-
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
