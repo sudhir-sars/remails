@@ -13,7 +13,7 @@ const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
 export const GET = async (req: NextRequest) => {
   const url = new URL(req.url);
-  const token_gen_code = url.searchParams.get('code');
+  const tokenGenCode = url.searchParams.get('code');
   const state = url.searchParams.get('state');
   let sessionId: string;
 
@@ -23,26 +23,26 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({ success: false, status: 400, statusText: 'Invalid state parameter' });
   }
 
-  if (!token_gen_code || !sessionId) {
+  if (!tokenGenCode || !sessionId) {
     return NextResponse.json({ success: false, status: 400, statusText: 'Invalid request' });
   }
 
   try {
-    console.log(url)
-    console.log(token_gen_code)
-    const { tokens } = await oAuth2Client.getToken(token_gen_code);
-    console.log("tokens form gcp: "+tokens)
+    console.log(url);
+    console.log(tokenGenCode);
+    const { tokens } = await oAuth2Client.getToken(tokenGenCode);
+    console.log("Tokens from Google Cloud Platform:", tokens);
     
-    console.log("refresh token: "+{tokens})
-    const refreshToken=tokens.refresh_token
+    const { refresh_token, access_token } = tokens;
+    
+    
     // Create a JWT with the tokens and session ID as payload
     const payload = {
-           
-      refreshToken,
+      refreshToken:refresh_token,
       sessionId,
-    
     };
-    console.log(" payload : "+payload)
+    console.log("Payload:", payload);
+    
     const token = jwt.sign(payload, JWT_SECRET!, { expiresIn: '1h' });
 
     // Construct the redirect URL with the JWT as a query parameter
