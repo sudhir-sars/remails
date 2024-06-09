@@ -1,25 +1,27 @@
 'use client';
-'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import jwt from 'jsonwebtoken';
 import { useSearchParams } from 'next/navigation';
 import { createTempSession, verifySessionId } from '@/utils/session';
-const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET;
-
 import Image from 'next/image';
 
 import { Mail } from './mail';
 import { accounts, mails } from '../data';
 
+const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET;
+
 interface MailPageProps {
   defaultLayout: any;
   defaultCollapsed: any;
 }
+
 interface DecodedToken {
   sessionId: string;
   refreshToken: string;
 }
+
 export default function MailPage({
   defaultLayout,
   defaultCollapsed,
@@ -33,12 +35,7 @@ export default function MailPage({
     if (JWT_token) {
       try {
         const decoded = jwt.verify(JWT_token, JWT_SECRET!) as DecodedToken;
-
-        const {
-          sessionId,
-
-          refreshToken,
-        } = decoded;
+        const { sessionId, refreshToken } = decoded;
 
         localStorage.setItem(
           'sessionToken',
@@ -49,14 +46,13 @@ export default function MailPage({
           jwt.sign({ refreshToken }, JWT_SECRET!, { expiresIn: '6d' })
         );
 
-        console.log('all token set');
+        console.log('All tokens set');
         setIsAuthorized(true);
-        router.replace('http://localhost:3000/');
+        router.replace('/');
       } catch (error) {
         console.error('Error verifying token:', error);
         localStorage.removeItem('sessionToken');
         localStorage.removeItem('refreshToken');
-
         window.location.href = '/signup';
       }
     } else {
@@ -65,9 +61,9 @@ export default function MailPage({
         try {
           const decoded = jwt.verify(local_token, JWT_SECRET!) as DecodedToken;
           setIsAuthorized(true);
-          router.replace('http://localhost:3000/');
+          router.replace('/');
         } catch (error) {
-          console.log('tamered token');
+          console.log('Tampered token');
           localStorage.clear();
           router.push('/signup');
         }
@@ -76,10 +72,11 @@ export default function MailPage({
       }
     }
   }, []);
+
   return (
-    <>
+    <div className="w-full h-full">
       {isAuthorized && (
-        <div className="mt-8  h-[95vh] ">
+        <div className="w-full border h-full">
           <Mail
             accounts={accounts}
             mails={mails}
@@ -89,6 +86,6 @@ export default function MailPage({
           />
         </div>
       )}
-    </>
+    </div>
   );
 }

@@ -17,11 +17,11 @@ const Menu: React.FC = () => {
   return (
     <>
       <div className="fixed flex justify-between items-center  w-full border border-l-0 border-r-0 border-t-0 z-50 ">
-        <ul className="flex  text-sm text-muted-foreground font-medium  pl-5">
-          {['Dashboard', 'Mail', 'Tasks', 'Calendar', 'Notes', 'Upcoming'].map(
+        <ul className="flex  text-sm text-muted-foreground font-medium  pl-2">
+          {['Dashboard', 'Mail', 'Tasks', 'Calendar', 'Upcoming'].map(
             (item) => (
               <ul className="" key={item}>
-                <li className="mx-1 my-1">
+                <li className=" my-1">
                   <Button
                     size={'sm'}
                     key={item}
@@ -33,7 +33,7 @@ const Menu: React.FC = () => {
                   'bg-primary text-muted-foreground hover:bg-primary hover:text-accent  text-white dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:text-white'
                 }`}
                   >
-                    <span className="px-1">{item}</span>
+                    <span className="">{item}</span>
                   </Button>
                 </li>
               </ul>

@@ -7,7 +7,7 @@ import MailComponent from '@/components/mail/MailPage';
 
 export default function Home() {
   return (
-    <main className=" flex max-h-screen  flex-col items-center justify-between ">
+    <main className=" flex max-h-screen h-screen w-screen border flex-col items-center justify-between ">
       <MailComponent />
     </main>
   );

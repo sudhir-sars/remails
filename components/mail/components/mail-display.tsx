@@ -1,5 +1,8 @@
+'use client';
 import { addDays, addHours, format, nextSaturday } from 'date-fns';
-
+import { useRef, useEffect, useState } from 'react';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import DOMPurify from 'dompurify';
 import {
   Archive,
   ArchiveX,
@@ -36,14 +39,31 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Mail } from '../data';
+// import { Mail } from '../data';
+import { IThreads, IThread, IEmail } from './IMail';
 
 interface MailDisplayProps {
-  mail: Mail | null;
+  mail: IEmail | null;
+  mailDisplaySize: number;
 }
 
-export function MailDisplay({ mail }: MailDisplayProps) {
+export function MailDisplay({ mail, mailDisplaySize }: MailDisplayProps) {
+  const parentRef = useRef(null);
   const today = new Date();
+  const [scale, setScale] = useState(100);
+  const sanitizedHTML = mail && DOMPurify.sanitize(mail.htmlBody);
+
+  useEffect(() => {
+    function handleResize() {
+      if (mailDisplaySize < 44) {
+        setScale(0.7); // Set scale as a percentage (multiplied by 100)
+      }
+      if (mailDisplaySize > 45) {
+        setScale(0.9);
+      }
+    }
+    handleResize();
+  }, [mailDisplaySize]);
 
   return (
     <div className="flex h-full flex-col">
@@ -211,9 +231,27 @@ export function MailDisplay({ mail }: MailDisplayProps) {
             )}
           </div>
           <Separator />
-          <div className="flex-1 whitespace-pre-wrap p-4 text-sm">
-            {mail.text}
-          </div>
+          <span>
+            <ScrollArea className="h-[60vh] w-full rounded-md ">
+              <div
+                style={{
+                  transform: `scale(${0.8})`,
+                  transformOrigin: 'top center',
+                  textAlign: '',
+                }}
+              >
+                <div
+                  className="text-ali"
+                  dangerouslySetInnerHTML={{
+                    __html: `<div style="transform: scale(1);">${sanitizedHTML}</div>`,
+                  }}
+                />
+                {/* </div> */}
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          </span>
+
           <Separator className="mt-auto" />
           <div className="p-4">
             <form>

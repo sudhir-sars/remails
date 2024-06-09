@@ -16,7 +16,7 @@ export default function MailComponent() {
   const defaultCollapsed = collapsed ? JSON.parse(collapsed.value) : undefined;
 
   return (
-    <span className="z-40 mt-1">
+    <span className="w-full h-full ">
       <MailPage
         defaultLayout={defaultLayout}
         defaultCollapsed={defaultCollapsed}

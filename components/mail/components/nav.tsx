@@ -19,13 +19,19 @@ interface NavProps {
     icon: LucideIcon;
     variant: 'default' | 'ghost';
   }[];
+  setSelectedNavItem: (item: string) => void;
+  selectedNavItem: string;
 }
 
-export function Nav({ links, isCollapsed }: NavProps) {
-  const [navSeletedItem, setnavSeletedItem] = React.useState('Inbox');
+export function Nav({
+  links,
+  isCollapsed,
+  setSelectedNavItem,
+  selectedNavItem,
+}: NavProps) {
   const handleNavButtonClick = (title: string) => {
     console.log(title);
-    setnavSeletedItem(title);
+    setSelectedNavItem(title);
   };
 
   return (
@@ -43,7 +49,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                   className={cn(
                     buttonVariants({ variant: link.variant, size: 'icon' }),
                     'h-9 w-9',
-                    navSeletedItem == link.label ? 'border' : ''
+                    selectedNavItem == link.label ? 'border' : ''
                   )}
                 >
                   <link.icon className="h-4 w-4" />
@@ -65,7 +71,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
               variant={'ghost'}
               className={`flex  justify-start hover:bg-border gap-2  hover:text-primary dark:text-muted-foreground  dark:hover:bg-muted rounded-lg  p-3 text-left text-sm transition-all '
                 ${
-                  navSeletedItem == link.title &&
+                  selectedNavItem == link.title &&
                   'bg-primary text-muted-foreground hover:bg-primary hover:text-accent  text-white dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:text-white'
                 }`}
               onClick={() => {

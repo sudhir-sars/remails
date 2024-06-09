@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   AlertCircle,
   Archive,
@@ -33,7 +33,7 @@ import { MailList } from './mail-list';
 import { Nav } from './nav';
 import { type Mail } from '../data';
 import { useMail } from '../use-mail';
-import { Url } from 'url';
+import { IThreads, IThread, IEmail } from './IMail';
 
 interface MailProps {
   accounts: {
@@ -41,7 +41,7 @@ interface MailProps {
     email: string;
     icon: React.ReactNode;
   }[];
-  mails: Mail[];
+  mails: IThreads;
   defaultLayout: number[] | undefined;
   defaultCollapsed?: boolean;
   navCollapsedSize: number;
@@ -49,14 +49,83 @@ interface MailProps {
 
 export function Mail({
   accounts,
-
-  mails,
   defaultLayout = [265, 440, 655],
   defaultCollapsed = false,
   navCollapsedSize,
 }: MailProps) {
-  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
-  const [mail] = useMail();
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+  const [mails, setMails] = useState<IThreads>([]);
+  const [lastFetchTime, setLastFetchTime] = useState<number | null>(null);
+  const [pageToken, setPageToken] = useState<string | null>(null);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const hasFetchedEmails = useRef(false); // useRef to track if emails have already been fetched
+  const [mail, setMail] = useMail();
+
+  const fetchEmail = async () => {
+    const token = localStorage.getItem('refreshToken');
+    if (!token) {
+      console.error('No token found in localStorage');
+      return;
+    }
+
+    setIsFetching(true);
+    try {
+      const params = new URLSearchParams({ token });
+
+      if (pageToken) {
+        params.append('pageToken', pageToken);
+      }
+
+      if (lastFetchTime) {
+        params.append(
+          'lastFetchTime',
+          Math.floor(lastFetchTime / 1000).toString()
+        );
+      }
+
+      const response = await fetch(
+        `http://localhost:3000/api/fetchmail/gmail?${params.toString()}`
+      );
+
+      if (response.ok) {
+        const responseData = await response.json();
+
+        if (responseData.success) {
+          const threads: IThreads = responseData.data;
+          console.log(threads);
+
+          setMails((prevMails) => {
+            const newMails = [...threads, ...prevMails];
+            console.log('New mails:', newMails);
+            return newMails;
+          });
+
+          setPageToken(responseData.nextPageToken || null);
+          setLastFetchTime(responseData.currentFetchTime * 1000); // Convert back to milliseconds
+        } else {
+          console.error('Error fetching emails:', responseData.error);
+        }
+      } else {
+        console.error('Failed to fetch emails:', response.statusText);
+      }
+    } catch (err) {
+      console.error('Error during email fetch:', err);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+  const [selectedNavItem, setSelectedNavItem] = useState('Inbox');
+
+  const [mailDisplaySize, setMailDisplaySize] = useState<number>(0);
+
+  useEffect(() => {
+    if (!hasFetchedEmails.current) {
+      console.log('Component mounted, fetching emails...');
+      fetchEmail();
+      hasFetchedEmails.current = true;
+      console.log('Updated mails:', mails); // Log the updated mails state
+    }
+  }, [mails]); // Add mails to the dependency array
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -66,8 +135,10 @@ export function Mail({
           document.cookie = `react-resizable-panels:layout=${JSON.stringify(
             sizes
           )}`;
+          setMailDisplaySize(sizes[2]);
+          // console.log(mailDisplaySize);
         }}
-        className="h-screen items-stretch "
+        className="h-screen items-stretch   "
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}
@@ -101,84 +172,96 @@ export function Mail({
             <AccountSwitcher isCollapsed={isCollapsed} accounts={accounts} />
           </div>
           <Separator />
-          <Nav
-            isCollapsed={isCollapsed}
-            links={[
-              {
-                title: 'Inbox',
-                label: '128',
-                icon: Inbox,
-                variant: 'default',
-              },
-              {
-                title: 'Drafts',
-                label: '9',
-                icon: File,
-                variant: 'ghost',
-              },
-              {
-                title: 'Sent',
-                label: '',
-                icon: Send,
-                variant: 'ghost',
-              },
-              {
-                title: 'Junk',
-                label: '23',
-                icon: ArchiveX,
-                variant: 'ghost',
-              },
-              {
-                title: 'Trash',
-                label: '',
-                icon: Trash2,
-                variant: 'ghost',
-              },
-              {
-                title: 'Archive',
-                label: '',
-                icon: Archive,
-                variant: 'ghost',
-              },
-            ]}
-          />
-          <Separator />
-          <Nav
-            isCollapsed={isCollapsed}
-            links={[
-              {
-                title: 'Social',
-                label: '972',
-                icon: Users2,
-                variant: 'ghost',
-              },
-              {
-                title: 'Updates',
-                label: '342',
-                icon: AlertCircle,
-                variant: 'ghost',
-              },
-              {
-                title: 'Forums',
-                label: '128',
-                icon: MessagesSquare,
-                variant: 'ghost',
-              },
-              {
-                title: 'Shopping',
-                label: '8',
-                icon: ShoppingCart,
-                variant: 'ghost',
-              },
-              {
-                title: 'Promotions',
-                label: '21',
-                icon: Archive,
-                variant: 'ghost',
-              },
-            ]}
-          />
+          <ResizablePanelGroup direction="vertical">
+            <ResizablePanel defaultSize={25} minSize={6}>
+              <Nav
+                selectedNavItem={selectedNavItem}
+                setSelectedNavItem={setSelectedNavItem}
+                isCollapsed={isCollapsed}
+                links={[
+                  {
+                    title: 'Inbox',
+                    label: '128',
+                    icon: Inbox,
+                    variant: 'default',
+                  },
+                  {
+                    title: 'Drafts',
+                    label: '9',
+                    icon: File,
+                    variant: 'ghost',
+                  },
+                  {
+                    title: 'Sent',
+                    label: '',
+                    icon: Send,
+                    variant: 'ghost',
+                  },
+                  {
+                    title: 'Junk',
+                    label: '23',
+                    icon: ArchiveX,
+                    variant: 'ghost',
+                  },
+                  {
+                    title: 'Trash',
+                    label: '',
+                    icon: Trash2,
+                    variant: 'ghost',
+                  },
+                  {
+                    title: 'Archive',
+                    label: '',
+                    icon: Archive,
+                    variant: 'ghost',
+                  },
+                ]}
+              />
+              {/* <Separator /> */}
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel>
+              <Nav
+                selectedNavItem={selectedNavItem}
+                setSelectedNavItem={setSelectedNavItem}
+                isCollapsed={isCollapsed}
+                links={[
+                  {
+                    title: 'Social',
+                    label: '972',
+                    icon: Users2,
+                    variant: 'ghost',
+                  },
+                  {
+                    title: 'Updates',
+                    label: '342',
+                    icon: AlertCircle,
+                    variant: 'ghost',
+                  },
+                  {
+                    title: 'Forums',
+                    label: '128',
+                    icon: MessagesSquare,
+                    variant: 'ghost',
+                  },
+                  {
+                    title: 'Shopping',
+                    label: '8',
+                    icon: ShoppingCart,
+                    variant: 'ghost',
+                  },
+                  {
+                    title: 'Promotions',
+                    label: '21',
+                    icon: Archive,
+                    variant: 'ghost',
+                  },
+                ]}
+              />
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </ResizablePanel>
+
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
           <Tabs defaultValue="all">
@@ -215,17 +298,41 @@ export function Mail({
               </form>
             </div>
             <TabsContent value="all" className="m-0">
-              <MailList items={mails} />
+              <MailList mails={mails} />
             </TabsContent>
             <TabsContent value="unread" className="m-0">
-              <MailList items={mails.filter((item) => !item.read)} />
+              <MailList
+                mails={mails
+                  .map((thread) => ({
+                    ...thread,
+                    threads: thread.threads.filter((email) => !email.read),
+                  }))
+                  .filter((thread) => thread.threads.length > 0)}
+              />
+            </TabsContent>
+            <TabsContent value="spam" className="m-0">
+              <MailList
+                mails={mails
+                  .map((thread) => ({
+                    ...thread,
+                    threads: thread.threads.filter(
+                      (email) => !email.labels.map((label) => label === 'SPAM')
+                    ),
+                  }))
+                  .filter((thread) => thread.threads.length > 0)}
+              />
             </TabsContent>
           </Tabs>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={defaultLayout[2]} minSize={28}>
+        <ResizablePanel defaultSize={defaultLayout[2]} minSize={25}>
           <MailDisplay
-            mail={mails.find((item) => item.id === mail.selected) || null}
+            mailDisplaySize={mailDisplaySize}
+            mail={
+              mails
+                .flatMap((thread) => thread.threads)
+                .find((email) => email.id === mail.selected) || null
+            }
           />
         </ResizablePanel>
       </ResizablePanelGroup>
