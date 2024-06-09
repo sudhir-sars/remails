@@ -32,7 +32,8 @@ export const GET = async (req: NextRequest) => {
     console.log(token_gen_code)
     const { tokens } = await oAuth2Client.getToken(token_gen_code);
     console.log("tokens form gcp: "+tokens)
-    // const {refresh_token}=tokens
+    
+    console.log("refresh token: "+{tokens})
     const refreshToken=tokens.refresh_token
     // Create a JWT with the tokens and session ID as payload
     const payload = {
@@ -41,7 +42,7 @@ export const GET = async (req: NextRequest) => {
       sessionId,
     
     };
-    // console.log(payload)
+    console.log(" payload : "+payload)
     const token = jwt.sign(payload, JWT_SECRET!, { expiresIn: '1h' });
 
     // Construct the redirect URL with the JWT as a query parameter
