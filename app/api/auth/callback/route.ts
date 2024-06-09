@@ -41,7 +41,7 @@ export const GET = async (req: NextRequest) => {
     const token = jwt.sign(payload, JWT_SECRET!, { expiresIn: '1h' });
 
     // Construct the redirect URL with the JWT as a query parameter
-    const redirectUrl = `http://localhost:3000/?JWT_token=${token}`;
+    const redirectUrl = `${process.env.NEXT_PUBLIC_HOST}/?JWT_token=${token}`;
 
     // Return response with cookie set
     return NextResponse.redirect(redirectUrl);
