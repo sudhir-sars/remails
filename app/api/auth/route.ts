@@ -23,7 +23,7 @@ export const GET = async (req: NextRequest) => {
  
   const url = new URL(req.url);
   const sessionId = url.searchParams.get('sessionId');
-  console.log(sessionId);
+  // console.log(sessionId);
 
   if (sessionId) {
     // await setTempSession(sessionId, { auth: "pending" });
@@ -33,6 +33,7 @@ export const GET = async (req: NextRequest) => {
       scope: SCOPES,
       state: JSON.stringify({ sessionId }),
     });
+    console.log(REDIRECT_URI)
 
     return NextResponse.redirect(authUrl);
   }
