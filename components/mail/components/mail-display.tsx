@@ -237,7 +237,7 @@ export function MailDisplay({ mail, mailDisplaySize }: MailDisplayProps) {
                 style={{
                   transform: `scale(${0.8})`,
                   transformOrigin: 'top center',
-                  textAlign: '',
+                  // textAlign: '',
                 }}
               >
                 <div
