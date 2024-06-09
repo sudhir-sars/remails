@@ -29,8 +29,9 @@ export const GET = async (req: NextRequest) => {
 
   try {
     const { tokens } = await oAuth2Client.getToken(token_gen_code);
-    const {refresh_token}=tokens
-    const refreshToken=refresh_token
+    console.log("tokens form gcp: "+tokens)
+    // const {refresh_token}=tokens
+    const refreshToken=tokens.refresh_token
     // Create a JWT with the tokens and session ID as payload
     const payload = {
            
