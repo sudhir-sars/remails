@@ -122,7 +122,7 @@ const Inbox: React.FC<InboxProps> = ({
         window.location.href = '/signup';
       }
     }
-  }, []);
+  }, [router, searchParams]);
 
   return (
     <>

@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import { useSearchParams } from 'next/navigation';
 import { createTempSession, verifySessionId } from '@/utils/session';
 import Image from 'next/image';
-
+import { Suspense } from 'react';
 import { Mail } from './mail';
 import { accounts, mails } from '../data';
 
@@ -71,21 +71,22 @@ export default function MailPage({
         window.location.href = '/signup';
       }
     }
-  }, []);
+  }, [router, searchParams]);
 
   return (
-    <div className="w-full h-full">
-      {isAuthorized && (
-        <div className="w-full border h-full">
-          <Mail
-            accounts={accounts}
-            mails={mails}
-            defaultLayout={defaultLayout}
-            defaultCollapsed={defaultCollapsed}
-            navCollapsedSize={4}
-          />
-        </div>
-      )}
-    </div>
+    <Suspense>
+      <div className="w-full h-full">
+        {isAuthorized && (
+          <div className="w-full border h-full">
+            <Mail
+              accounts={accounts}
+              defaultLayout={defaultLayout}
+              defaultCollapsed={defaultCollapsed}
+              navCollapsedSize={4}
+            />
+          </div>
+        )}
+      </div>
+    </Suspense>
   );
 }

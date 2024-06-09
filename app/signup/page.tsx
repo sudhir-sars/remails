@@ -1,3 +1,4 @@
+'use client';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -5,7 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import { UserAuthForm } from '@/components/login/user-auth-form';
-
+import { Suspense } from 'react';
 const Login: React.FC = () => {
   return (
     <div className="min-h-screen">

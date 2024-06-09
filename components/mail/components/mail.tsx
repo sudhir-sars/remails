@@ -41,7 +41,7 @@ interface MailProps {
     email: string;
     icon: React.ReactNode;
   }[];
-  mails: IThreads;
+
   defaultLayout: number[] | undefined;
   defaultCollapsed?: boolean;
   navCollapsedSize: number;
@@ -61,71 +61,71 @@ export function Mail({
   const hasFetchedEmails = useRef(false); // useRef to track if emails have already been fetched
   const [mail, setMail] = useMail();
 
-  const fetchEmail = async () => {
-    const token = localStorage.getItem('refreshToken');
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-
-    setIsFetching(true);
-    try {
-      const params = new URLSearchParams({ token });
-
-      if (pageToken) {
-        params.append('pageToken', pageToken);
-      }
-
-      if (lastFetchTime) {
-        params.append(
-          'lastFetchTime',
-          Math.floor(lastFetchTime / 1000).toString()
-        );
-      }
-
-      const response = await fetch(
-        `http://localhost:3000/api/fetchmail/gmail?${params.toString()}`
-      );
-
-      if (response.ok) {
-        const responseData = await response.json();
-
-        if (responseData.success) {
-          const threads: IThreads = responseData.data;
-          console.log(threads);
-
-          setMails((prevMails) => {
-            const newMails = [...threads, ...prevMails];
-            console.log('New mails:', newMails);
-            return newMails;
-          });
-
-          setPageToken(responseData.nextPageToken || null);
-          setLastFetchTime(responseData.currentFetchTime * 1000); // Convert back to milliseconds
-        } else {
-          console.error('Error fetching emails:', responseData.error);
-        }
-      } else {
-        console.error('Failed to fetch emails:', response.statusText);
-      }
-    } catch (err) {
-      console.error('Error during email fetch:', err);
-    } finally {
-      setIsFetching(false);
-    }
-  };
   const [selectedNavItem, setSelectedNavItem] = useState('Inbox');
 
   const [mailDisplaySize, setMailDisplaySize] = useState<number>(0);
 
   useEffect(() => {
-    if (!hasFetchedEmails.current) {
-      console.log('Component mounted, fetching emails...');
-      fetchEmail();
-      hasFetchedEmails.current = true;
-      console.log('Updated mails:', mails); // Log the updated mails state
-    }
-  }, [mails]); // Add mails to the dependency array
+    // if (!hasFetchedEmails.current) {
+    const fetchEmail = async () => {
+      const token = localStorage.getItem('refreshToken');
+      if (!token) {
+        console.error('No token found in localStorage');
+        return;
+      }
+
+      setIsFetching(true);
+      try {
+        const params = new URLSearchParams({ token });
+
+        if (pageToken) {
+          params.append('pageToken', pageToken);
+        }
+
+        if (lastFetchTime) {
+          params.append(
+            'lastFetchTime',
+            Math.floor(lastFetchTime / 1000).toString()
+          );
+        }
+
+        const response = await fetch(
+          `http://localhost:3000/api/fetchmail/gmail?${params.toString()}`
+        );
+
+        if (response.ok) {
+          const responseData = await response.json();
+
+          if (responseData.success) {
+            const threads: IThreads = responseData.data;
+            console.log(threads);
+
+            setMails((prevMails) => {
+              const newMails = [...threads, ...prevMails];
+              console.log('New mails:', newMails);
+              return newMails;
+            });
+
+            setPageToken(responseData.nextPageToken || null);
+            setLastFetchTime(responseData.currentFetchTime * 1000); // Convert back to milliseconds
+          } else {
+            console.error('Error fetching emails:', responseData.error);
+          }
+        } else {
+          console.error('Failed to fetch emails:', response.statusText);
+        }
+      } catch (err) {
+        console.error('Error during email fetch:', err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    //   console.log('Component mounted, fetching emails...');
+    fetchEmail();
+    // hasFetchedEmails.current = true;
+    // console.log('Updated mails:', mails); // Log the updated mails state
+    // }
+  }, [mails, lastFetchTime, pageToken]); // Add mails to the dependency array
 
   return (
     <TooltipProvider delayDuration={0}>
