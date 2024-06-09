@@ -97,7 +97,7 @@ async function fetchEmailThreads(auth: OAuth2Client, threadId: string) {
   }
 }
 
-async function fetchEmails(auth: OAuth2Client, pageToken: string | null,lastFetchTime:number) {
+async function fetchEmails(auth: OAuth2Client, pageToken: string | null,lastFetchTime:string|null) {
   const gmail = google.gmail({ version: 'v1', auth });
   const userId = 'me';
   
@@ -129,7 +129,7 @@ async function fetchEmails(auth: OAuth2Client, pageToken: string | null,lastFetc
         });
 
         // const formattedEmail = formatEmailData(message.data);
-        const emailThreads = await fetchEmailThreads(auth, message.data.threadId);
+        const emailThreads = await fetchEmailThreads(auth, message.data.threadId!);
         
         // console.log(emailThreads)
         return {  threads: emailThreads };
