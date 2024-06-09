@@ -28,6 +28,9 @@ export const GET = async (req: NextRequest) => {
   if (sessionId) {
     // await setTempSession(sessionId, { auth: "pending" });
     console.log("redirect uri is as :  "+REDIRECT_URI)
+    console.log("redirect uri is as :  "+JWT_SECRET)
+    console.log("redirect uri is as :  "+CLIENT_SECRET)
+    console.log("redirect uri is as :  "+CLIENT_ID)
 
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
