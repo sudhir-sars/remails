@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
-import { serialize } from 'cookie'; // Import serialize function from cookie package
+import { serialize } from 'cookie';
 import { getTempSession, setTempSession, deleteTempSession } from '../../../../utils/session';
 import jwt from 'jsonwebtoken';
 
@@ -28,27 +28,21 @@ export const GET = async (req: NextRequest) => {
   }
 
   try {
-    console.log(url);
-    console.log(tokenGenCode);
     const { tokens } = await oAuth2Client.getToken(tokenGenCode);
-    console.log("Tokens from Google Cloud Platform:", tokens);
-    
     const { refresh_token, access_token } = tokens;
-    
-    
-    // Create a JWT with the tokens and session ID as payload
+
+    if (!refresh_token) {
+      console.error('Refresh token not returned. User may need to reauthenticate.');
+    }
+
     const payload = {
-      refreshToken:refresh_token,
+      refreshToken: refresh_token,
       sessionId,
     };
-    console.log("Payload:", payload);
-    
-    const token = jwt.sign(payload, JWT_SECRET!, { expiresIn: '1h' });
 
-    // Construct the redirect URL with the JWT as a query parameter
+    const token = jwt.sign(payload, JWT_SECRET!, { expiresIn: '1h' });
     const redirectUrl = `${process.env.NEXT_PUBLIC_HOST}/?JWT_token=${token}`;
 
-    // Return response with cookie set
     return NextResponse.redirect(redirectUrl);
   } catch (error) {
     console.error('Error exchanging code for token:', error);

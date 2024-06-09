@@ -1,13 +1,10 @@
-// File: /app/api/auth/main.ts
 import { NextResponse, NextRequest } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
-import {  setTempSession } from '../../../utils/session';
+import { setTempSession } from '../../../utils/session';
 
-// Replace with your credentials
-const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-const CLIENT_SECRET = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET
-const REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI
-const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const CLIENT_SECRET = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET;
+const REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
 
 const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 const SCOPES = [
@@ -20,24 +17,16 @@ const SCOPES = [
 ];
 
 export const GET = async (req: NextRequest) => {
- 
   const url = new URL(req.url);
   const sessionId = url.searchParams.get('sessionId');
-  // console.log(sessionId);
 
   if (sessionId) {
-    // await setTempSession(sessionId, { auth: "pending" });
-    console.log("redirect uri is as :  "+REDIRECT_URI)
-    console.log("redirect uri is as :  "+JWT_SECRET)
-    console.log("redirect uri is as :  "+CLIENT_SECRET)
-    console.log("redirect uri is as :  "+CLIENT_ID)
-
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
+      prompt: 'consent', // Force the user to re-consent to ensure a refresh token is returned
       scope: SCOPES,
       state: JSON.stringify({ sessionId }),
     });
-    
 
     return NextResponse.redirect(authUrl);
   }
