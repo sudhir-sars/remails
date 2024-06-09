@@ -90,7 +90,7 @@ export function Mail({
         }
 
         const response = await fetch(
-          `http://localhost:3000/api/fetchmail/gmail?${params.toString()}`
+          `api/fetchmail/gmail?${params.toString()}`
         );
 
         if (response.ok) {
