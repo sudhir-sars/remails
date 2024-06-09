@@ -27,13 +27,14 @@ export const GET = async (req: NextRequest) => {
 
   if (sessionId) {
     // await setTempSession(sessionId, { auth: "pending" });
+    console.log("redirect uri is as :  "+REDIRECT_URI)
 
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: SCOPES,
       state: JSON.stringify({ sessionId }),
     });
-    console.log(REDIRECT_URI)
+    
 
     return NextResponse.redirect(authUrl);
   }

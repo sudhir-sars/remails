@@ -38,6 +38,7 @@ export const GET = async (req: NextRequest) => {
       sessionId,
     
     };
+    console.log(payload)
     const token = jwt.sign(payload, JWT_SECRET!, { expiresIn: '1h' });
 
     // Construct the redirect URL with the JWT as a query parameter

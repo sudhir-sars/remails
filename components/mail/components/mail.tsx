@@ -125,7 +125,7 @@ export function Mail({
     // hasFetchedEmails.current = true;
     // console.log('Updated mails:', mails); // Log the updated mails state
     // }
-  }, [mails, lastFetchTime, pageToken]); // Add mails to the dependency array
+  }, []); // Add mails to the dependency array
 
   return (
     <TooltipProvider delayDuration={0}>
