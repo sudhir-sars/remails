@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { createTempSession, verifySessionId } from '@/utils/session';
 import Image from 'next/image';
 import { Suspense } from 'react';
-import { Mail } from './mail';
+import { Mail } from './Mail';
 import { accounts, mails } from '../data';
 
 const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET;
@@ -31,6 +31,7 @@ export default function MailPage({
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
+    console.log('here');
     const JWT_token = searchParams.get('JWT_token');
     if (JWT_token) {
       try {
@@ -71,11 +72,11 @@ export default function MailPage({
         window.location.href = '/signup';
       }
     }
-  }, [router, searchParams]);
+  }, []);
 
   return (
     <Suspense>
-      <div className="w-full h-full">
+      <div className="w-full h-full ">
         {isAuthorized && (
           <div className="w-full border h-full">
             <Mail

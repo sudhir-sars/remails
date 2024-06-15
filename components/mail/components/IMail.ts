@@ -1,3 +1,5 @@
+
+
 export interface IEmail {
   id: string;
   threadId: string;
@@ -13,7 +15,9 @@ export interface IEmail {
 }
 
 export interface IThread {
-  threads: IEmail[];
+  threadId: string;
+  emails: IEmail[];
 }
 
 export type IThreads = IThread[];
+

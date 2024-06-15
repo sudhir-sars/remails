@@ -1,8 +1,9 @@
 // app/mail/server.tsx
 import { cookies } from 'next/headers';
-import { Mail } from './components/mail';
+import { Mail } from './components/Mail';
 import { accounts, mails } from './data';
 import MailPage from './components/page';
+import { Suspense } from 'react';
 
 export default function MailComponent() {
   const cookieStore = cookies();
@@ -16,11 +17,13 @@ export default function MailComponent() {
   const defaultCollapsed = collapsed ? JSON.parse(collapsed.value) : undefined;
 
   return (
-    <span className="w-full h-full ">
-      <MailPage
-        defaultLayout={defaultLayout}
-        defaultCollapsed={defaultCollapsed}
-      />
-    </span>
+    <Suspense>
+      <span className="w-full h-full overflow-x-hidden ">
+        <MailPage
+          defaultLayout={defaultLayout}
+          defaultCollapsed={defaultCollapsed}
+        />
+      </span>
+    </Suspense>
   );
 }

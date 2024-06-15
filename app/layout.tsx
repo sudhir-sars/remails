@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
-import { Inter as FontSans } from 'next/font/google';
+import { Poppins as FontSans } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import NavBar from '@/components/main/NavBar';
 
 import { cn } from '@/lib/utils';
+
+// Import the Poppins font with appropriate subsets, weights, and CSS variable
 const fontSans = FontSans({
   subsets: ['latin'],
+  weight: ['400', '700'], // Specify the weights you want to include
   variable: '--font-sans',
 });
 
@@ -21,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="">
+    <html lang="en">
       <body
         className={cn(
           'min-h-screen bg-background font-sans antialiased',
@@ -34,7 +37,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* <NavBar /> */}
+          <NavBar />
           {children}
         </ThemeProvider>
       </body>

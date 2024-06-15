@@ -10,29 +10,41 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { IEmail } from './IMail';
+
+interface NavLabelCount {
+  name: string;
+  messagesTotal: number;
+}
+
+type NavLabelCounts = NavLabelCount[];
 
 interface NavProps {
+  navLabelCount: NavLabelCounts;
   isCollapsed: boolean;
   links: {
     title: string;
-    label?: string;
+
     icon: LucideIcon;
     variant: 'default' | 'ghost';
   }[];
   setSelectedNavItem: (item: string) => void;
   selectedNavItem: string;
+  handleMailListChange: (label: string) => void;
 }
 
 export function Nav({
+  navLabelCount,
+  handleMailListChange,
   links,
   isCollapsed,
   setSelectedNavItem,
   selectedNavItem,
 }: NavProps) {
   const handleNavButtonClick = (title: string) => {
-    console.log(title);
     setSelectedNavItem(title);
   };
+  // console.log(navLabelCount);
 
   return (
     <div
@@ -45,11 +57,11 @@ export function Nav({
             <Tooltip key={index} delayDuration={0}>
               <TooltipTrigger asChild>
                 <div
-                  // onClick={handleNavButtonClick(link.title)}
+                  onClick={() => handleMailListChange(link.title)!}
                   className={cn(
                     buttonVariants({ variant: link.variant, size: 'icon' }),
                     'h-9 w-9',
-                    selectedNavItem == link.label ? 'border' : ''
+                    selectedNavItem == link.title ? 'border' : ''
                   )}
                 >
                   <link.icon className="h-4 w-4" />
@@ -58,11 +70,16 @@ export function Nav({
               </TooltipTrigger>
               <TooltipContent side="right" className="flex items-center gap-4">
                 {link.title}
-                {link.label && (
-                  <span className="ml-auto text-muted-foreground">
-                    {link.label}
-                  </span>
-                )}
+                <span className="ml-auto text-muted-foreground">
+                  {navLabelCount &&
+                    (() => {
+                      const matchingItem = navLabelCount.find(
+                        (item) =>
+                          item.name.toUpperCase() === link.title.toUpperCase()
+                      );
+                      return matchingItem ? matchingItem.messagesTotal : '';
+                    })()}
+                </span>
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -75,13 +92,25 @@ export function Nav({
                   'bg-primary text-muted-foreground hover:bg-primary hover:text-accent  text-white dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:text-white'
                 }`}
               onClick={() => {
-                console.log('here');
+                handleMailListChange(link.title);
                 handleNavButtonClick(link.title);
               }}
             >
               <link.icon className="mr-2 h-4 w-4" />
               {link.title}
-              {link.label && (
+              {navLabelCount &&
+                navLabelCount
+                  .filter(
+                    (item) =>
+                      item.name.toUpperCase() === link.title.toUpperCase()
+                  )
+                  .map((item) => (
+                    <span key={item.name} className="ml-auto ">
+                      {item.messagesTotal}
+                    </span>
+                  ))}
+
+              {/* {link. && (
                 <span
                   className={cn(
                     'ml-auto hover:text-accent ',
@@ -90,7 +119,7 @@ export function Nav({
                 >
                   {link.label}
                 </span>
-              )}
+              )} */}
             </Button>
             // <Button
             //   variant="ghost"

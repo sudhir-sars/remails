@@ -27,13 +27,15 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { AccountSwitcher } from './account-switcher';
-import { MailDisplay } from './mail-display';
-import { MailList } from './mail-list';
+import { AccountSwitcher } from './AccountSwitcher';
+import { MailDisplay } from './MailDisplay';
+import { MailList } from './MailList';
 import { Nav } from './nav';
 import { type Mail } from '../data';
-import { useMail } from '../use-mail';
+
 import { IThreads, IThread, IEmail } from './IMail';
+import { LucideIcon } from 'lucide-react';
+import { dummyEmail } from '@/constants/dummyMail';
 
 interface MailProps {
   accounts: {
@@ -47,6 +49,19 @@ interface MailProps {
   navCollapsedSize: number;
 }
 
+interface CustomLabel {
+  title: string;
+  label: number;
+  icon: LucideIcon;
+  variant: 'ghost';
+}
+interface NavLabelCount {
+  name: string;
+  messagesTotal: number;
+}
+
+type CustomLabels = CustomLabel[];
+type NavLabelCounts = NavLabelCount[];
 export function Mail({
   accounts,
   defaultLayout = [265, 440, 655],
@@ -55,78 +70,85 @@ export function Mail({
 }: MailProps) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [mails, setMails] = useState<IThreads>([]);
+
   const [lastFetchTime, setLastFetchTime] = useState<number | null>(null);
   const [pageToken, setPageToken] = useState<string | null>(null);
-  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [isFetching, setIsFetching] = useState<boolean>(true);
   const hasFetchedEmails = useRef(false); // useRef to track if emails have already been fetched
-  const [mail, setMail] = useMail();
-
+  const [mail, setMail] = useState<IEmail>(dummyEmail);
+  const [mailListLabel, setMailListLabel] = useState<string>('INBOX');
   const [selectedNavItem, setSelectedNavItem] = useState('Inbox');
-
   const [mailDisplaySize, setMailDisplaySize] = useState<number>(0);
+  const [customLabels, setCustomLabels] = useState<CustomLabels[]>([]);
+  const [navLabelCount, setNavLabelCount] = useState<NavLabelCounts>([]);
+  const [fetchMore, setFetchMore] = useState<boolean>(true);
 
-  useEffect(() => {
-    // if (!hasFetchedEmails.current) {
-    const fetchEmail = async () => {
-      const token = localStorage.getItem('refreshToken');
-      if (!token) {
-        console.error('No token found in localStorage');
-        return;
+  const handleMailListChange = async (label: string) => {
+    const item = label.toUpperCase();
+    setMailListLabel(item);
+  };
+
+  const fetchEmail = async () => {
+    if (!fetchMore) {
+      return;
+    }
+    setFetchMore(false);
+
+    const token = localStorage.getItem('refreshToken');
+    if (!token) {
+      console.error('No token found in localStorage');
+      return;
+    }
+
+    try {
+      const params = new URLSearchParams({ token });
+
+      if (pageToken) {
+        params.append('pageToken', pageToken);
       }
 
-      setIsFetching(true);
-      try {
-        const params = new URLSearchParams({ token });
+      // if (lastFetchTime) {
+      //   params.append(
+      //     'lastFetchTime',
+      //     Math.floor(lastFetchTime / 1000).toString()
+      //   );
+      // }
 
-        if (pageToken) {
-          params.append('pageToken', pageToken);
-        }
+      const response = await fetch(`api/fetchmail/gmail?${params.toString()}`);
 
-        if (lastFetchTime) {
-          params.append(
-            'lastFetchTime',
-            Math.floor(lastFetchTime / 1000).toString()
-          );
-        }
+      if (response.ok) {
+        const responseData = await response.json();
 
-        const response = await fetch(
-          `api/fetchmail/gmail?${params.toString()}`
-        );
+        if (responseData.success) {
+          const resThreads: IThreads = responseData.data;
+          setNavLabelCount(responseData.labels);
 
-        if (response.ok) {
-          const responseData = await response.json();
+          const combinedThreads = [...resThreads, ...mails];
+          const threads = combinedThreads.map((thread) => {
+            const sortedEmails = thread.emails.sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
+            return { threadId: thread.threadId, emails: sortedEmails };
+          });
 
-          if (responseData.success) {
-            const threads: IThreads = responseData.data;
-            console.log(threads);
-
-            setMails((prevMails) => {
-              const newMails = [...threads, ...prevMails];
-              console.log('New mails:', newMails);
-              return newMails;
-            });
-
-            setPageToken(responseData.nextPageToken || null);
-            setLastFetchTime(responseData.currentFetchTime * 1000); // Convert back to milliseconds
-          } else {
-            console.error('Error fetching emails:', responseData.error);
-          }
+          setMails(threads);
+          localStorage.setItem('nextPageToken', responseData.nextPageToken);
+          setPageToken(responseData.nextPageToken || null);
+          setLastFetchTime(responseData.currentFetchTime * 1000); // Convert back to milliseconds
+          setIsFetching(false);
         } else {
-          console.error('Failed to fetch emails:', response.statusText);
+          console.error('Error fetching emails:', responseData.error);
         }
-      } catch (err) {
-        console.error('Error during email fetch:', err);
-      } finally {
-        setIsFetching(false);
+      } else {
+        console.error('Failed to fetch emails:', response.statusText);
       }
-    };
-    //   console.log('Component mounted, fetching emails...');
-    fetchEmail();
-    // hasFetchedEmails.current = true;
-    // console.log('Updated mails:', mails); // Log the updated mails state
-    // }
-  }, []); // Add mails to the dependency array
+    } catch (err) {
+      console.error('Error during email fetch:', err);
+    }
+  };
+  fetchEmail();
 
+  useEffect(() => {});
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup
@@ -173,45 +195,46 @@ export function Mail({
           </div>
           <Separator />
           <ResizablePanelGroup direction="vertical">
-            <ResizablePanel defaultSize={25} minSize={6}>
+            <ResizablePanel defaultSize={25} minSize={7}>
               <Nav
+                navLabelCount={navLabelCount}
+                handleMailListChange={handleMailListChange}
                 selectedNavItem={selectedNavItem}
                 setSelectedNavItem={setSelectedNavItem}
                 isCollapsed={isCollapsed}
                 links={[
                   {
                     title: 'Inbox',
-                    label: '128',
                     icon: Inbox,
                     variant: 'default',
                   },
                   {
                     title: 'Drafts',
-                    label: '9',
+
                     icon: File,
                     variant: 'ghost',
                   },
                   {
                     title: 'Sent',
-                    label: '',
+
                     icon: Send,
                     variant: 'ghost',
                   },
                   {
                     title: 'Junk',
-                    label: '23',
+
                     icon: ArchiveX,
                     variant: 'ghost',
                   },
                   {
                     title: 'Trash',
-                    label: '',
+
                     icon: Trash2,
                     variant: 'ghost',
                   },
                   {
                     title: 'Archive',
-                    label: '',
+
                     icon: Archive,
                     variant: 'ghost',
                   },
@@ -220,68 +243,35 @@ export function Mail({
               {/* <Separator /> */}
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel>
-              <Nav
-                selectedNavItem={selectedNavItem}
-                setSelectedNavItem={setSelectedNavItem}
-                isCollapsed={isCollapsed}
-                links={[
-                  {
-                    title: 'Social',
-                    label: '972',
-                    icon: Users2,
-                    variant: 'ghost',
-                  },
-                  {
-                    title: 'Updates',
-                    label: '342',
-                    icon: AlertCircle,
-                    variant: 'ghost',
-                  },
-                  {
-                    title: 'Forums',
-                    label: '128',
-                    icon: MessagesSquare,
-                    variant: 'ghost',
-                  },
-                  {
-                    title: 'Shopping',
-                    label: '8',
-                    icon: ShoppingCart,
-                    variant: 'ghost',
-                  },
-                  {
-                    title: 'Promotions',
-                    label: '21',
-                    icon: Archive,
-                    variant: 'ghost',
-                  },
-                ]}
-              />
-            </ResizablePanel>
+            <ResizablePanel></ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
 
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
-          <Tabs defaultValue="all">
+          <Tabs
+            defaultValue="INBOX"
+            onValueChange={(value) => {
+              handleMailListChange(value);
+            }}
+          >
             <div className="flex items-center px-4 py-2">
               <h1 className="text-xl font-bold">Inbox</h1>
               <TabsList className="ml-auto">
                 <TabsTrigger
-                  value="all"
+                  value="INBOX"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
                   All mail
                 </TabsTrigger>
                 <TabsTrigger
-                  value="unread"
+                  value="UNREAD"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
                   Unread
                 </TabsTrigger>
                 <TabsTrigger
-                  value="spam"
+                  value="SPAM"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
                   Spam
@@ -289,51 +279,24 @@ export function Mail({
               </TabsList>
             </div>
             <Separator />
-            <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <form>
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search" className="pl-8" />
-                </div>
-              </form>
-            </div>
-            <TabsContent value="all" className="m-0">
-              <MailList mails={mails} />
-            </TabsContent>
-            <TabsContent value="unread" className="m-0">
-              <MailList
-                mails={mails
-                  .map((thread) => ({
-                    ...thread,
-                    threads: thread.threads.filter((email) => !email.read),
-                  }))
-                  .filter((thread) => thread.threads.length > 0)}
-              />
-            </TabsContent>
-            <TabsContent value="spam" className="m-0">
-              <MailList
-                mails={mails
-                  .map((thread) => ({
-                    ...thread,
-                    threads: thread.threads.filter(
-                      (email) => !email.labels.map((label) => label === 'SPAM')
-                    ),
-                  }))
-                  .filter((thread) => thread.threads.length > 0)}
-              />
-            </TabsContent>
           </Tabs>
+          <div className="mt-2"></div>
+          <MailList
+            mails={mails.map((thread) => ({
+              threadId: thread.threadId,
+              emails: thread.emails.filter((email) =>
+                email.labels.includes(mailListLabel)
+              ),
+            }))}
+            setFetchMore={setFetchMore}
+            setMail={setMail}
+            isFetching={isFetching}
+            mail={mail}
+          />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={defaultLayout[2]} minSize={25}>
-          <MailDisplay
-            mailDisplaySize={mailDisplaySize}
-            mail={
-              mails
-                .flatMap((thread) => thread.threads)
-                .find((email) => email.id === mail.selected) || null
-            }
-          />
+        <ResizablePanel defaultSize={defaultLayout[2]} minSize={35}>
+          <MailDisplay mailDisplaySize={mailDisplaySize} mail={mail} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </TooltipProvider>
