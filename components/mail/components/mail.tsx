@@ -160,7 +160,7 @@ export function Mail({
           setMailDisplaySize(sizes[2]);
           // console.log(mailDisplaySize);
         }}
-        className="h-screen items-stretch   "
+        className="h-screen   "
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}

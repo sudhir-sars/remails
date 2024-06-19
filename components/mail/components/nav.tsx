@@ -56,16 +56,24 @@ export function Nav({
           isCollapsed ? (
             <Tooltip key={index} delayDuration={0}>
               <TooltipTrigger asChild>
-                <div
-                  onClick={() => handleMailListChange(link.title)!}
-                  className={cn(
-                    buttonVariants({ variant: link.variant, size: 'icon' }),
-                    'h-9 w-9',
-                    selectedNavItem == link.title ? 'border' : ''
-                  )}
-                >
-                  <link.icon className="h-4 w-4" />
-                  <span className="sr-only">{link.title}</span>
+                <div>
+                  <Button
+                    // size={'icon'}
+                    key={index}
+                    variant={'ghost'}
+                    className={`flex  justify-start hover:bg-border gap-2  hover:text-primary dark:text-muted-foreground  dark:hover:bg-muted rounded-lg  p-3 text-left text-sm transition-all '
+                ${
+                  selectedNavItem == link.title &&
+                  'bg-primary text-muted-foreground hover:bg-primary hover:text-accent  text-white dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:text-white'
+                }`}
+                    onClick={() => {
+                      handleMailListChange(link.title);
+                      handleNavButtonClick(link.title);
+                    }}
+                  >
+                    <link.icon className="h-4 w-4" />
+                    {/* <span className="sr-only">{link.title}</span> */}
+                  </Button>
                 </div>
               </TooltipTrigger>
               <TooltipContent side="right" className="flex items-center gap-4">
@@ -109,25 +117,7 @@ export function Nav({
                       {item.messagesTotal}
                     </span>
                   ))}
-
-              {/* {link. && (
-                <span
-                  className={cn(
-                    'ml-auto hover:text-accent ',
-                    link.variant === 'default' && ' dark:text-white '
-                  )}
-                >
-                  {link.label}
-                </span>
-              )} */}
             </Button>
-            // <Button
-            //   variant="ghost"
-            //   key={index}
-            //   className={`flex justify-start rounded-lg `}
-            // >
-
-            // </Button>
           )
         )}
       </nav>

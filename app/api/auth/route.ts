@@ -9,9 +9,6 @@ const REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
 const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 const SCOPES = [
   'https://mail.google.com/',
-  'https://www.googleapis.com/auth/meetings.space.created',
-  'https://www.googleapis.com/auth/drive',
-  'https://www.googleapis.com/auth/calendar',
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/userinfo.profile',
 ];

@@ -65,6 +65,7 @@ export function MailDisplay({ mail, mailDisplaySize }: MailDisplayProps) {
   const sanitizedHTML = mail && DOMPurify.sanitize(mail.htmlBody);
   const [reply, setReply] = useState<boolean>(false);
   const [forward, setForward] = useState<boolean>(false);
+  const [fullView, setFullView] = useState(true);
 
   useEffect(() => {
     function handleResize() {
@@ -153,6 +154,7 @@ export function MailDisplay({ mail, mailDisplaySize }: MailDisplayProps) {
                         <span
                           onClick={() => {
                             console.log('setting reply true');
+                            setFullView(true);
                             setReply(true);
                           }}
                         >
@@ -253,7 +255,15 @@ export function MailDisplay({ mail, mailDisplaySize }: MailDisplayProps) {
           No message selected
         </div>
       )}
-      {reply && <ReplyModal setReply={setReply} mail={mail} />}
+
+      {reply && (
+        <ReplyModal
+          setFullView={setFullView}
+          setReply={setReply}
+          mail={mail}
+          fullView={fullView}
+        />
+      )}
       {forward && <ForwardModal setForward={setForward} mail={mail} />}
     </div>
   );

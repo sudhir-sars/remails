@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// File: /components/TextEditor.tsx
+import React from 'react';
 import 'react-quill/dist/quill.snow.css';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -9,65 +10,101 @@ import { FaBold, FaItalic, FaUnderline, FaLink } from 'react-icons/fa';
 import { GoListOrdered, GoListUnordered } from 'react-icons/go';
 import { MdImage } from 'react-icons/md';
 
-interface ITextEditor {
-  editorRef: any;
-  handleEditorInput: any;
-  handleButtonClick: any;
-  handleEmbedLink: any;
-  handleImageUpload: any;
-  handleAddAttachment: any;
-}
-
 const TextEditor = ({
+  setEditorHtml,
   editorRef,
-  handleEditorInput,
-  handleButtonClick,
-  handleEmbedLink,
-  handleImageUpload,
-  handleAddAttachment,
+  handleToolBarButtonClick,
+  editorHtml,
+  resetStylesToDefault,
 }) => {
+  const handleEditorInput = () => {
+    if (editorRef.current) {
+      setEditorHtml(editorRef.current.innerHTML);
+      const editorContent = editorRef.current.innerHTML.trim();
+      if (editorContent === '' || editorContent === '<br>') {
+        resetStylesToDefault();
+      }
+      console.log(editorHtml);
+    }
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (editorRef.current) {
+          const img = document.createElement('img');
+          img.src = reader.result as string;
+          editorRef.current.appendChild(img);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleEmbedLink = () => {
+    const url = prompt('Enter the URL');
+    if (url) {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+      const link = document.createElement('a');
+      link.href = url;
+      link.appendChild(range.extractContents());
+      range.insertNode(link);
+    }
+  };
+
+  const handleAddAttachment = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const link = URL.createObjectURL(file);
+      if (editorRef.current) {
+        editorRef.current.innerHTML += `<a href="${link}" download="${file.name}">${file.name}</a>`;
+        setEditorHtml(editorRef.current.innerHTML);
+      }
+    }
+  };
+
   return (
     <span>
-      <div className="bg-white text-base caret-fuchsia-500 h-[66.5%] overflow-hidden mt-[0.1rem]">
-        <span>
-          <div className="text-editor w-full h-full">
-            <div
-              ref={editorRef}
-              contentEditable
-              onInput={handleEditorInput}
-              className="editor w-full h-full px-4 py-2 mt-2 outline-none text-base overflow-y-scroll"
-            />
-          </div>
-        </span>
+      <div className="bg-white text-base caret-fuchsia-500  h-[26.5rem]  w-[31.1rem] overflow-hidden mt-[0.1rem]">
+        <div className="text-editor w-full">
+          <div
+            ref={editorRef}
+            contentEditable
+            onInput={handleEditorInput}
+            className="editor w-full h-full px-4 py-2 mt-2 outline-none overflow-y-scroll"
+          />
+        </div>
       </div>
 
       <div className="bg-white overflow-hidden mt-[0.1rem]">
         <span className="h-full">
           <div className="controls w-full h-full flex flex-wrap my-2 mx-3 space-x-1">
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              onClick={() => handleButtonClick('bold')}
-              value="bold"
+              onClick={() => handleToolBarButtonClick('bold')}
             >
               <FaBold />
             </Button>
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              onClick={() => handleButtonClick('italic')}
-              value="italic"
+              onClick={() => handleToolBarButtonClick('italic')}
             >
               <FaItalic />
             </Button>
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              onClick={() => handleButtonClick('underline')}
-              value="underline"
+              onClick={() => handleToolBarButtonClick('underline')}
             >
               <FaUnderline />
             </Button>
@@ -78,29 +115,26 @@ const TextEditor = ({
             />
 
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              onClick={() => handleButtonClick('justifyLeft')}
-              value="justifyLeft"
+              onClick={() => handleToolBarButtonClick('justifyLeft')}
             >
               <PiTextAlignLeftBold />
             </Button>
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              onClick={() => handleButtonClick('justifyCenter')}
-              value="justifyCenter"
+              onClick={() => handleToolBarButtonClick('justifyCenter')}
             >
               <FiAlignCenter />
             </Button>
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              onClick={() => handleButtonClick('justifyRight')}
-              value="justifyRight"
+              onClick={() => handleToolBarButtonClick('justifyRight')}
             >
               <PiTextAlignRightBold />
             </Button>
@@ -110,20 +144,18 @@ const TextEditor = ({
             />
 
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              onClick={() => handleButtonClick('insertOrderedList')}
-              value="insertOrderedList"
+              onClick={() => handleToolBarButtonClick('insertOrderedList')}
             >
               <GoListOrdered />
             </Button>
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              onClick={() => handleButtonClick('insertUnorderedList')}
-              value="insertUnorderedList"
+              onClick={() => handleToolBarButtonClick('insertUnorderedList')}
             >
               <GoListUnordered />
             </Button>
@@ -132,19 +164,17 @@ const TextEditor = ({
               className="h-7 w-[0.1rem] rounded-full"
             />
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
               onClick={handleEmbedLink}
-              value="embedLink"
             >
               <FaLink />
             </Button>
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              value="uploadImage"
             >
               <label>
                 <MdImage />
@@ -157,10 +187,9 @@ const TextEditor = ({
               </label>
             </Button>
             <Button
-              variant={'ghost'}
-              size={'toolBar'}
+              variant="ghost"
+              size="toolBar"
               className="rounded-sm text-base"
-              value="addAttachment"
             >
               <label>
                 <IoDocumentAttach />
