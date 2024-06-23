@@ -28,6 +28,7 @@ const buttonVariants = cva(
         themeIcon: 'h-6 w-6 rounded-md',
         mini: 'h-5 w-5 ',
         toolBar: 'h-7 px-2 ',
+        label: 'h-[1.15rem] w-[1.15rem]',
       },
     },
     defaultVariants: {

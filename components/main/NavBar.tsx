@@ -64,13 +64,13 @@ const Menu: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchUserInfo();
+    // fetchUserInfo();
   }, []);
 
   return (
     <>
       <nav
-        className={`top-2 border border-gray-300 dark:border-[#27272a] rounded-r-none border-r-0 rounded-full fixed right-0 z-50 `}
+        className={`top-2 border border-gray-300 dark:border-[#27272a] rounded-r-none border-r-0 rounded-full fixed right-0  `}
       >
         <div
           className={`space-x-2 w-auto h-auto bg-white rounded-full rounded-r-none py-1 px-1 pl-2 border-r-0

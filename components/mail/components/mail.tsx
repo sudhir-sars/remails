@@ -49,18 +49,20 @@ interface MailProps {
   navCollapsedSize: number;
 }
 
-interface CustomLabel {
-  title: string;
-  label: number;
-  icon: LucideIcon;
-  variant: 'ghost';
-}
 interface NavLabelCount {
   name: string;
   messagesTotal: number;
 }
+interface IUserLabels {
+  title: string;
+  personal: boolean;
+  labelColor: string;
+  domain: boolean;
+  personalEmails: string[];
+  domainEmails: string[];
+  category: string;
+}
 
-type CustomLabels = CustomLabel[];
 type NavLabelCounts = NavLabelCount[];
 export function Mail({
   accounts,
@@ -79,9 +81,12 @@ export function Mail({
   const [mailListLabel, setMailListLabel] = useState<string>('INBOX');
   const [selectedNavItem, setSelectedNavItem] = useState('Inbox');
   const [mailDisplaySize, setMailDisplaySize] = useState<number>(0);
-  const [customLabels, setCustomLabels] = useState<CustomLabels[]>([]);
+
   const [navLabelCount, setNavLabelCount] = useState<NavLabelCounts>([]);
   const [fetchMore, setFetchMore] = useState<boolean>(true);
+
+  const userId = localStorage.getItem('userId');
+  const [userLabels, setUserLabels] = useState<IUserLabels[]>([]);
 
   const handleMailListChange = async (label: string) => {
     const item = label.toUpperCase();
@@ -89,6 +94,7 @@ export function Mail({
   };
 
   const fetchEmail = async () => {
+    console.log('calling fecth email');
     if (!fetchMore) {
       return;
     }
@@ -146,9 +152,65 @@ export function Mail({
       console.error('Error during email fetch:', err);
     }
   };
-  fetchEmail();
 
-  useEffect(() => {});
+  const fetchUserLabels = async () => {
+    try {
+      const response = await fetch(`/api/userData/labels?userId=${userId}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch labels');
+      }
+
+      const resData = await response.json();
+
+      if (resData.success) {
+        setUserLabels(resData.data.labels);
+      } else {
+        console.log('Failed to fetch labels');
+      }
+    } catch (error) {
+      console.error('Error fetching labels:', error);
+    }
+  };
+  const fetchUserLabelsIcons = async () => {
+    try {
+      await Promise.all(
+        userLabels.map(async (label) => {
+          if (label.domain) {
+            await Promise.all(
+              label.domainEmails.map(async (domain) => {
+                try {
+                  const response = await fetch(
+                    `https://logo.clearbit.com/${domain}`
+                  );
+                  if (response.ok) {
+                    console.log('sucessfully fetched icons');
+                    label.icon = response.url;
+                  } else {
+                    throw new Error(`Failed to fetch icon for ${domain}`);
+                  }
+                } catch (error) {
+                  console.error(`Error fetching icon for ${domain}:`, error);
+                }
+              })
+            );
+          }
+        })
+      );
+    } catch (error) {
+      console.error('Error fetching labels:', error);
+      throw error;
+    }
+  };
+
+  // console.log(userLabels);
+
+  useEffect(() => {
+    setIsFetching(true);
+    fetchEmail();
+
+    fetchUserLabels();
+  }, []);
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup
@@ -202,6 +264,7 @@ export function Mail({
                 selectedNavItem={selectedNavItem}
                 setSelectedNavItem={setSelectedNavItem}
                 isCollapsed={isCollapsed}
+                setUserLabels={setUserLabels}
                 links={[
                   {
                     title: 'Inbox',
@@ -243,7 +306,17 @@ export function Mail({
               {/* <Separator /> */}
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel></ResizablePanel>
+            <ResizablePanel>
+              <Nav
+                navLabelCount={navLabelCount}
+                handleMailListChange={handleMailListChange}
+                selectedNavItem={selectedNavItem}
+                setSelectedNavItem={setSelectedNavItem}
+                isCollapsed={isCollapsed}
+                userLabels={userLabels}
+                setUserLabels={setUserLabels}
+              />
+            </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
 
@@ -288,6 +361,7 @@ export function Mail({
                 email.labels.includes(mailListLabel)
               ),
             }))}
+            userLabels={userLabels}
             setFetchMore={setFetchMore}
             setMail={setMail}
             isFetching={isFetching}
