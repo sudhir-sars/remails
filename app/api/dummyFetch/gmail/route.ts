@@ -85,32 +85,32 @@ async function formatEmailData(gmail: gmail_v1.Gmail, email: gmail_v1.Schema$Mes
 
   const { textBody, htmlBody, attachments } = await extractContent(email, oAuth2Client);
 
-  const attachmentPromises = attachments.map(async (attachment) => {
-    const attachmentInfo = await getAttachmentInfo(gmail, 'me', email.id!, attachment.body!.attachmentId!, accessToken);
-    return {
-      filename: attachment.filename!,
-      mimeType: attachment.mimeType || 'application/octet-stream',
-      data: attachmentInfo?.data,
-      size: attachmentInfo?.size,
-    };
-  });
+  // const attachmentPromises = attachments.map(async (attachment) => {
+  //   const attachmentInfo = await getAttachmentInfo(gmail, 'me', email.id!, attachment.body!.attachmentId!, accessToken);
+  //   return {
+  //     filename: attachment.filename!,
+  //     mimeType: attachment.mimeType || 'application/octet-stream',
+  //     data: attachmentInfo?.data,
+  //     size: attachmentInfo?.size,
+  //   };
+  // });
 
-  const resolvedAttachments = await Promise.all(attachmentPromises);
+  // const resolvedAttachments = await Promise.all(attachmentPromises);
 
   return {
-    id: email.id,
-    threadId: email.threadId,
-    name: senderName?.trim() || '',
-    email: senderEmail?.replace('>', '') || '',
-    reply: getHeader('reply-to'),
-    snippet: email.snippet,
-    subject: getHeader('subject'),
-    htmlBody,
+    // id: email.id,
+    // threadId: email.threadId,
+    // name: senderName?.trim() || '',
+    // email: senderEmail?.replace('>', '') || '',
+    // reply: getHeader('reply-to'),
+    // snippet: email.snippet,
+    // subject: getHeader('subject'),
+    // htmlBody,
     textBody,
-    date: new Date(parseInt(email.internalDate || '0', 10)).toISOString(),
-    read: !email.labelIds?.includes('UNREAD'),
-    labels: email.labelIds,
-    attachments: resolvedAttachments,
+    // date: new Date(parseInt(email.internalDate || '0', 10)).toISOString(),
+    // read: !email.labelIds?.includes('UNREAD'),
+    // labels: email.labelIds,
+    // attachments: resolvedAttachments,
   };
 }
 
@@ -148,7 +148,7 @@ async function fetchEmails(auth: OAuth2Client, pageToken: string | null, lastFet
 
     const response = await gmail.users.messages.list({
       userId,
-      maxResults: 10,
+      maxResults: 1000,
       q: query,
       pageToken: pageToken || undefined,
       fields: 'messages(id,threadId),nextPageToken',

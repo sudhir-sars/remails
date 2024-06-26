@@ -54,7 +54,7 @@ import { IThreads, IThread, IEmail } from './IMail';
 interface MailDisplayProps {
   mail: IEmail;
 }
-import { ReplyModal } from './ReplyModal';
+// import { ReplyModal } from './ReplyComponent';
 import { ForwardModal } from './ForwardModal';
 
 export function MailDisplayFull({ mail }: MailDisplayProps) {

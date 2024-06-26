@@ -10,7 +10,7 @@ import { SquarePlus } from 'lucide-react';
 import { BriefcaseBusiness } from 'lucide-react';
 import { GraduationCap } from 'lucide-react';
 import { SquareUserRound } from 'lucide-react';
-import { MdOutlineFamilyRestroom } from 'react-icons/md';
+import { MdEmail, MdOutlineFamilyRestroom } from 'react-icons/md';
 
 import {
   Tooltip,
@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { IEmail } from './IMail';
+import { IEmail, IThreads } from './IMail';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -80,6 +80,7 @@ interface IUserLabels {
   domainEmails: string[]; // Make these properties optional
   category: string;
 }
+import { IThread } from './IMail';
 
 interface ILabelData {
   userId: string;
@@ -96,9 +97,6 @@ export function Nav({
   selectedNavItem,
   setUserLabels,
 }: NavProps) {
-  const handleNavButtonClick = (title: string) => {
-    setSelectedNavItem(title);
-  };
   const [bucketType, setBucketType] = useState('Personal'); // State to manage radio button selection
   const [bucketTitle, setBucketTitle] = useState('');
   const [optionalInput, setOptionalInput] = useState(''); // State to manage the optional input
@@ -183,6 +181,9 @@ export function Nav({
       // Handle error appropriately
     }
   };
+  const handleNavButtonClick = (title: string) => {
+    setSelectedNavItem(title.toUpperCase());
+  };
 
   return (
     <div
@@ -202,12 +203,13 @@ export function Nav({
                       variant={'ghost'}
                       className={`flex  justify-start hover:bg-border gap-2  hover:text-primary dark:text-muted-foreground  dark:hover:bg-muted rounded-lg  p-3 text-left text-sm transition-all '
                 ${
-                  selectedNavItem == link.title &&
+                  selectedNavItem == link.title.toUpperCase() &&
                   'bg-primary text-muted-foreground hover:bg-primary hover:text-accent  text-white dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:text-white'
                 }`}
                       onClick={() => {
                         handleMailListChange(link.title);
-                        handleNavButtonClick(link.title);
+                        link.title;
+                        setSelectedNavItem(link.title);
                       }}
                     >
                       <link.icon className="h-4 w-4" />
@@ -238,7 +240,7 @@ export function Nav({
                 variant={'ghost'}
                 className={`flex  justify-start hover:bg-border gap-2  hover:text-primary dark:text-muted-foreground  dark:hover:bg-muted rounded-lg  p-3 text-left text-sm transition-all '
                 ${
-                  selectedNavItem == link.title &&
+                  selectedNavItem == link.title.toUpperCase() &&
                   'bg-primary text-muted-foreground hover:bg-primary hover:text-accent  text-white dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:text-white'
                 }`}
                 onClick={() => {
@@ -274,7 +276,7 @@ export function Nav({
                       variant={'ghost'}
                       className={`flex  justify-start hover:bg-border gap-2  hover:text-primary dark:text-muted-foreground  dark:hover:bg-muted rounded-lg  p-3 text-left text-sm transition-all '
                 ${
-                  selectedNavItem == label.title &&
+                  selectedNavItem == label.title.toUpperCase() &&
                   'bg-primary text-muted-foreground hover:bg-primary hover:text-accent  text-white dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:text-white'
                 }`}
                       onClick={() => {
@@ -323,7 +325,7 @@ export function Nav({
                 variant={'ghost'}
                 className={`flex  justify-start hover:bg-border gap-2  hover:text-primary dark:text-muted-foreground  dark:hover:bg-muted rounded-lg  p-3 pl-1 text-left text-sm transition-all '
                 ${
-                  selectedNavItem == label.title &&
+                  selectedNavItem == label.title.toUpperCase() &&
                   'bg-primary text-muted-foreground hover:bg-primary hover:text-accent  text-white dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:text-white'
                 }`}
                 onClick={() => {

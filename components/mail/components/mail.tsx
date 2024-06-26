@@ -9,6 +9,7 @@ import {
   File,
   Inbox,
   MessagesSquare,
+  MicIcon,
   Search,
   Send,
   ShoppingCart,
@@ -62,6 +63,9 @@ interface IUserLabels {
   domainEmails: string[];
   category: string;
 }
+interface IMailsWithFilter {
+  [key: string]: IThreads;
+}
 
 type NavLabelCounts = NavLabelCount[];
 export function Mail({
@@ -72,35 +76,114 @@ export function Mail({
 }: MailProps) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [mails, setMails] = useState<IThreads>([]);
+  const [mailsWithFilter, setMailsWithFilter] = useState<IMailsWithFilter>({
+    INBOX: [],
+  });
 
-  const [lastFetchTime, setLastFetchTime] = useState<number | null>(null);
-  const [pageToken, setPageToken] = useState<string | null>(null);
-  const [isFetching, setIsFetching] = useState<boolean>(true);
-  const hasFetchedEmails = useRef(false); // useRef to track if emails have already been fetched
-  const [mail, setMail] = useState<IEmail>(dummyEmail);
+  const [mail, setMail] = useState<IThread>(dummyEmail);
   const [mailListLabel, setMailListLabel] = useState<string>('INBOX');
-  const [selectedNavItem, setSelectedNavItem] = useState('Inbox');
+  const [selectedNavItem, setSelectedNavItem] = useState('INBOX');
   const [mailDisplaySize, setMailDisplaySize] = useState<number>(0);
 
   const [navLabelCount, setNavLabelCount] = useState<NavLabelCounts>([]);
-  const [fetchMore, setFetchMore] = useState<boolean>(true);
 
   const userId = localStorage.getItem('userId');
   const [userLabels, setUserLabels] = useState<IUserLabels[]>([]);
+
+  const [checkForNewMail, setCheckForNewMail] = useState(false);
+  const [checkForOldMail, setCheckForOldMail] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
 
   const handleMailListChange = async (label: string) => {
     const item = label.toUpperCase();
     setMailListLabel(item);
   };
+  const [userFilterActive, setUserFilterActive] = useState<boolean>(false);
+  const [category, setCategory] = useState<string>('');
+  const [userLabelFilter, setUserLabelFilter] = useState<string[]>([]);
+
+  useEffect(() => {
+    const defaultCategories = [
+      'INBOX',
+      'DRAFTS',
+      'SENT',
+      'JUNK',
+      'TRASH',
+      'ARCHIVE',
+    ];
+    const newMailsWithFilter: IMailsWithFilter = {};
+
+    // Filter for default categories
+    defaultCategories.forEach((category) => {
+      newMailsWithFilter[category] = mails
+        .map((thread) => ({
+          threadId: thread.threadId,
+          emails: thread.emails.filter((email) =>
+            email.labels.includes(category)
+          ),
+        }))
+        .filter((thread) => thread.emails.length > 0); // Only keep threads with emails
+    });
+
+    if (userLabels.length > 0) {
+      userLabels.forEach((label) => {
+        const userLabelFilter = label.personal
+          ? label.personalEmails
+          : label.domainEmails;
+        const category = label.personal ? 'PERSONAL' : 'DOMAIN';
+
+        newMailsWithFilter[label.title.toUpperCase()] = mails
+          .map((thread) => ({
+            threadId: thread.threadId,
+            emails: thread.emails.filter((email) => {
+              if (category === 'PERSONAL') {
+                return userLabelFilter.includes(email.email);
+              } else if (category === 'DOMAIN') {
+                const domain = (email.email.match(
+                  /@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+                ) || [''])[0].substring(1);
+                return userLabelFilter.includes(domain);
+              }
+              return false;
+            }),
+          }))
+          .filter((thread) => thread.emails.length > 0); // Only keep threads with emails
+      });
+    }
+
+    setMailsWithFilter(newMailsWithFilter);
+  }, [mails]);
+
+  function sortMails(threads: IThreads): IThreads {
+    // Sort emails within each thread by date descending
+    threads.forEach((thread) => {
+      thread.emails.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+    });
+
+    // Sort threads by the highest date within each thread
+    threads.sort((a, b) => {
+      const dateA = new Date(a.emails[0].date).getTime();
+      const dateB = new Date(b.emails[0].date).getTime();
+      return dateB - dateA;
+    });
+
+    return threads;
+  }
 
   const fetchEmail = async () => {
-    console.log('calling fecth email');
-    if (!fetchMore) {
-      return;
+    console.log('old: ' + checkForOldMail);
+    console.log('new: ' + checkForNewMail);
+    if (checkForNewMail) {
+      console.log('fetching for New');
     }
-    setFetchMore(false);
+    if (checkForOldMail) {
+      console.log('fetching for Old');
+    }
 
     const token = localStorage.getItem('refreshToken');
+
     if (!token) {
       console.error('No token found in localStorage');
       return;
@@ -109,16 +192,29 @@ export function Mail({
     try {
       const params = new URLSearchParams({ token });
 
-      if (pageToken) {
-        params.append('pageToken', pageToken);
+      if (checkForOldMail) {
+        const nextPageToken = localStorage.getItem('nextPageToken');
+        if (nextPageToken) {
+          params.append('pageToken', nextPageToken);
+        } else {
+          console.log('no page token found aborting fetch Old');
+          return;
+        }
+      } else if (checkForNewMail) {
+        const lastFetchTime = localStorage.getItem('lastFetchTime');
+
+        if (lastFetchTime) {
+          params.append(
+            'lastFetchTime',
+            Math.floor(parseInt(lastFetchTime) / 1000).toString()
+          );
+        } else {
+          console.log('no lastFetchTime found aborting fetch New');
+          return;
+        }
       }
 
-      // if (lastFetchTime) {
-      //   params.append(
-      //     'lastFetchTime',
-      //     Math.floor(lastFetchTime / 1000).toString()
-      //   );
-      // }
+      console.log(params);
 
       const response = await fetch(`api/fetchmail/gmail?${params.toString()}`);
 
@@ -127,21 +223,44 @@ export function Mail({
 
         if (responseData.success) {
           const resThreads: IThreads = responseData.data;
+
           setNavLabelCount(responseData.labels);
 
-          const combinedThreads = [...resThreads, ...mails];
-          const threads = combinedThreads.map((thread) => {
-            const sortedEmails = thread.emails.sort(
-              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-            );
-            return { threadId: thread.threadId, emails: sortedEmails };
-          });
+          const sortedMails = sortMails([...mails, ...resThreads]);
 
-          setMails(threads);
-          localStorage.setItem('nextPageToken', responseData.nextPageToken);
-          setPageToken(responseData.nextPageToken || null);
-          setLastFetchTime(responseData.currentFetchTime * 1000); // Convert back to milliseconds
+          setMails(sortedMails);
+
+          if (!checkForNewMail) {
+            localStorage.setItem('nextPageToken', responseData.nextPageToken);
+          }
+          if (!checkForOldMail) {
+            if (
+              mails.length > 0 &&
+              mails[0].emails.length > 0 &&
+              mails[0].emails[0].date
+            ) {
+              const isoString: string = mails[0].emails[0].date;
+              const date: Date = new Date(isoString);
+              const milliseconds: number = date.getTime();
+              localStorage.setItem('lastFetchTime', `${milliseconds}`);
+              console.log(milliseconds);
+            }
+          }
+
+          if (!checkForNewMail && !checkForOldMail) {
+            localStorage.setItem('nextPageToken', responseData.nextPageToken);
+            localStorage.setItem(
+              'lastFetchTime',
+              `${responseData.currentFetchTime * 1000}`
+            );
+          }
+
           setIsFetching(false);
+          if (checkForNewMail) {
+            setCheckForNewMail(false);
+          } else if (checkForOldMail) {
+            setCheckForOldMail(false);
+          }
         } else {
           console.error('Error fetching emails:', responseData.error);
         }
@@ -211,6 +330,7 @@ export function Mail({
 
     fetchUserLabels();
   }, []);
+
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup
@@ -222,7 +342,7 @@ export function Mail({
           setMailDisplaySize(sizes[2]);
           // console.log(mailDisplaySize);
         }}
-        className="h-screen   "
+        className="h-full  w-full "
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}
@@ -355,22 +475,24 @@ export function Mail({
           </Tabs>
           <div className="mt-2"></div>
           <MailList
-            mails={mails.map((thread) => ({
-              threadId: thread.threadId,
-              emails: thread.emails.filter((email) =>
-                email.labels.includes(mailListLabel)
-              ),
-            }))}
+            mails={mailsWithFilter[selectedNavItem] || mails}
             userLabels={userLabels}
-            setFetchMore={setFetchMore}
             setMail={setMail}
-            isFetching={isFetching}
             mail={mail}
+            checkForNewMail={checkForNewMail}
+            setCheckForNewMail={setCheckForNewMail}
+            fetchEmail={fetchEmail}
+            setCheckForOldMail={setCheckForOldMail}
+            checkForOldMail={checkForOldMail}
+            isFetching={isFetching}
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[2]} minSize={35}>
-          <MailDisplay mailDisplaySize={mailDisplaySize} mail={mail} />
+          <MailDisplay
+            mailDisplaySize={mailDisplaySize}
+            mail={mail.emails[0]}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </TooltipProvider>

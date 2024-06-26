@@ -16,6 +16,7 @@ import {
   Archive,
   ArchiveX,
   Clock,
+  Divide,
   Forward,
   MoreVertical,
   Reply,
@@ -55,7 +56,7 @@ interface MailDisplayProps {
   mail: IEmail;
   mailDisplaySize: number;
 }
-import { ReplyModal } from './ReplyModal';
+// import { ReplyModal } from './ReplyComponent';
 import { ForwardModal } from './ForwardModal';
 
 export function MailDisplay({ mail, mailDisplaySize }: MailDisplayProps) {
@@ -203,21 +204,24 @@ export function MailDisplay({ mail, mailDisplaySize }: MailDisplayProps) {
           <Separator />
           <span className="p-2">
             <ScrollArea className="h-[86vh] w-full rounded-xl p-2  ">
-              <div
-                style={{
-                  transform: `scale(${0.85})`,
-                  transformOrigin: 'top',
-                  // textAlign: '',
-                }}
-              >
+              {mail.htmlBody !== '' ? (
                 <div
-                  className="text-ali"
-                  dangerouslySetInnerHTML={{
-                    __html: `<div style="transform: scale(1);">${sanitizedHTML}</div>`,
+                  style={{
+                    transform: `scale(${0.85})`,
+                    transformOrigin: 'top',
                   }}
-                />
-                {/* </div> */}
-              </div>
+                >
+                  <div
+                    className="text-ali"
+                    dangerouslySetInnerHTML={{
+                      __html: `<div style="transform: scale(1);">${sanitizedHTML}</div>`,
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="text-wrap">{mail.textBody}</div>
+              )}
+
               <ScrollBar orientation="horizontal" />
             </ScrollArea>
           </span>

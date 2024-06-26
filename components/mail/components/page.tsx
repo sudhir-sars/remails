@@ -47,7 +47,6 @@ export default function MailPage({
           jwt.sign({ refreshToken }, JWT_SECRET!, { expiresIn: '6d' })
         );
 
-        console.log('All tokens set');
         setIsAuthorized(true);
         router.replace('/');
       } catch (error) {

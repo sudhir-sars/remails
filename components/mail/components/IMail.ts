@@ -1,4 +1,11 @@
 
+export interface IAttachemnts{
+  data?: string | null | undefined;
+  size?: number | null | undefined;
+  filename?: string;
+  mimeType?: string;
+  attachmentId?: string;
+}
 
 export interface IEmail {
   id: string;
@@ -9,9 +16,11 @@ export interface IEmail {
   snippet: string;
   subject: string;
   htmlBody: string;
+  textBody: string;
   date: string;
   read: boolean;
   labels: string[];
+  attachments?:IAttachemnts[]
 }
 
 export interface IThread {
