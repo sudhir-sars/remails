@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+// import TextEditor from '../compose mail/TextEditor';
 import {
   ScrollArea,
   ScrollAreaViewport,
@@ -23,12 +24,10 @@ interface MailHeaderProps {
 
 // Example child component wrapped with React.memo
 const MailHeader: React.FC<MailHeaderProps> = React.memo(({ email }) => (
-  <div className="absolute flex justify-start items-center z-[50] bg-transparent w-full  top-2">
-    <div className="space-y-2 px-3 py-2 w-full rounded-lg rounded-br-none   border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="text-xs text-muted-foreground">{` ${email.name} <${email.email}>`}</div>
-      <div className="flex justify-between">
-        <div>{email.subject}</div>
-      </div>
+  <div className=" fixed items-center z-[50]   space-y-2 px-8  py-3 w-full rounded-lg rounded-br-none   border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="text-xs text-foreground">{`From: ${email.name} <${email.email}>`}</div>
+    <div className="flex justify-between ">
+      <div>{`Sub: ${email.subject}`}</div>
     </div>
   </div>
 ));
@@ -45,7 +44,10 @@ const EmailContent: React.FC<EmailContentProps> = React.memo(({ emails }) => (
         email.htmlBody || email.textBody
       );
       return (
-        <ScrollArea key={index} className="max-w-[80vw]  flex justify-center">
+        <ScrollArea
+          key={index}
+          className="max-w-[80vw] pr-5 pl-0  flex justify-center"
+        >
           <div className="flex justify-between my-12 ">
             <ScrollArea className="flex justify-center w-full">
               <div
@@ -109,41 +111,37 @@ export function ViewInFullMode({ mail, viewFullMailRef }: IViewInFullMode) {
           <span ref={viewFullMailRef} className="hidden"></span>
         </DialogTrigger>
 
-        <DialogContent className="h-[98vh] w-[80vw] bg-muted pt-3 px-8 ">
-          <div className="relative">
-            <MailHeader email={mail.emails[0]} />
-          </div>
+        <DialogContent className="h-[98vh] w-[80vw] bg-muted p-0  px-0">
+          <MailHeader email={mail.emails[0]} />
 
           <div className="h-full w-full relative">
-            <div className="absolute top-14  right-0 z-[56]">
-              {mail.emails.length > 1 && (
-                <button
-                  onClick={() => {
-                    setCollapsibleButtonClick(!collapsibleButtonClick);
-                    handleCollapsibleButtonClick();
-                  }}
-                  onMouseLeave={() => setCollapsibleButtonHover(false)}
-                  onMouseEnter={() => setCollapsibleButtonHover(true)}
-                  className="
+            <div className="absolute top-[4.5rem]  right-6 z-[56]">
+              <button
+                onClick={() => {
+                  setCollapsibleButtonClick(!collapsibleButtonClick);
+                  handleCollapsibleButtonClick();
+                }}
+                onMouseLeave={() => setCollapsibleButtonHover(false)}
+                onMouseEnter={() => setCollapsibleButtonHover(true)}
+                className="
                   rounded-lg h-7 w-16 flex justify-center items-center
                   border-b border-border/40 rounded-t-none bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60
                   "
-                >
-                  {!collapsibleButtonHover && !collapsibleButtonClick && (
-                    <BiExpandVertical className="p-[0.18rem]" />
-                  )}
-                  {collapsibleButtonClick && !collapsibleButtonHover && (
-                    <BiCollapseVertical className="p-[0.18rem]" />
-                  )}
-                  {collapsibleButtonClick && collapsibleButtonHover && (
-                    <BiCollapseVertical className="" />
-                  )}
-                  {collapsibleButtonHover && !collapsibleButtonClick && (
-                    <BiExpandVertical className="" />
-                  )}
-                  <span className="text-sm mr-2">{mail.emails.length}</span>
-                </button>
-              )}
+              >
+                {collapsibleButtonClick && !collapsibleButtonHover && (
+                  <BiCollapseVertical className="p-[0.18rem]" />
+                )}
+                {collapsibleButtonHover && !collapsibleButtonClick && (
+                  <BiExpandVertical className="" />
+                )}
+                {!collapsibleButtonHover && !collapsibleButtonClick && (
+                  <BiExpandVertical className="p-[0.18rem]" />
+                )}
+                {collapsibleButtonClick && collapsibleButtonHover && (
+                  <BiCollapseVertical className="" />
+                )}
+                <span className="text-sm mr-2">{mail.emails.length}</span>
+              </button>
             </div>
 
             <div className="relative w-full">
@@ -163,58 +161,42 @@ export function ViewInFullMode({ mail, viewFullMailRef }: IViewInFullMode) {
                         </CollapsibleTrigger>
                       </div>
                       <div className="flex w-full rounded-2xl relative">
-                        <CollapsibleContent className="space-y-2  pt-10  rounded-2xl w-full">
+                        <CollapsibleContent className="space-y-2  pt-16  rounded-2xl w-full">
                           <EmailContent
                             emails={mail.emails.slice(0, -1).reverse()}
                           />
                         </CollapsibleContent>
                       </div>
                     </Collapsible>
-                    {mail.emails.length > 1 ? (
-                      <div className="flex justify-between w-full">
-                        <ScrollArea className="justify-center w-full">
-                          <div
-                            className="bg-muted rounded-3xl mb-24"
-                            dangerouslySetInnerHTML={{
-                              __html: DOMPurify.sanitize(
-                                mail.emails[0].htmlBody ||
-                                  mail.emails[0].textBody
-                              ),
-                            }}
-                          />
-                        </ScrollArea>
-                        <div className="flex items-center justify-center w-9">
-                          <div className="flex items-center flex-col h-full relative">
-                            <span className="absolute top-[10%] flex justify-center text-xs items-center dark:bg-muted bg-muted border text-black h-6 w-6 dark:text-white font-semibold rounded-full px-[0.3rem]">
-                              <span>{mail.emails.length}</span>
-                            </span>
-                            <span className="h-[100%] w-[0.2rem] rounded-full bg-gray-300" />
-                          </div>
+
+                    <div className="flex justify-between w-full pt-16 pr-5 pl-0">
+                      <ScrollArea className="justify-center w-full">
+                        <div
+                          className="bg-muted rounded-3xl mb-24 p-6"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(
+                              mail.emails[0].htmlBody || mail.emails[0].textBody
+                            ),
+                          }}
+                        />
+                      </ScrollArea>
+                      <div className="flex items-center justify-center w-9">
+                        <div className="flex items-center flex-col h-full relative">
+                          <span className="absolute top-[10%] flex justify-center text-xs items-center dark:bg-muted bg-muted border text-black h-6 w-6 dark:text-white font-semibold rounded-full px-[0.3rem]">
+                            <span>{mail.emails.length}</span>
+                          </span>
+                          <span className="h-[100%] w-[0.2rem] rounded-full bg-gray-300" />
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex justify-between border">
-                        <ScrollArea className="max-w-[80vw] justify-center w-full">
-                          <div
-                            className="text-xs"
-                            dangerouslySetInnerHTML={{
-                              __html: DOMPurify.sanitize(
-                                mail.emails[0].htmlBody ||
-                                  mail.emails[0].textBody
-                              ),
-                            }}
-                          />
-                          <ScrollBar orientation="horizontal" />
-                        </ScrollArea>
-                      </div>
-                    )}
+                    </div>
+                    {/* <TextEditor /> */}
                   </ScrollAreaViewport>
                 </ScrollArea>
               </div>
               <div
                 className={`${
                   replyForwardButtonVisibility ? '' : 'hidden'
-                } absolute bottom-0 w-full h-28 bg-transparent `}
+                } absolute top-0 w-full h-28 bg-transparent `}
               >
                 <div className="w-full h-full bg-transparent flex justify-end pr-10 space-x-4 items-center">
                   <Button className="rounded-full px-10 pl-7 space-x-2 flex justify-center items-center bg-black text-white hover:bg-muted">
