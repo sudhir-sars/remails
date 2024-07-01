@@ -1,0 +1,31 @@
+[33m1999e3b[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m HEAD@{0}: reset: moving to 1999e3b
+[33m1999e3b[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m HEAD@{1}: commit: fixed view in full mode module
+[33m64a2e0c[m HEAD@{2}: commit: added new view full mail panel, optmized fetch mail api by make it 80% faster add auto mail fetching on scrollup and scrolldown add Buketting module
+[33m4fccf6f[m HEAD@{3}: commit: added bucketing module
+[33m4820a75[m HEAD@{4}: commit: dummy commit
+[33m90b743b[m HEAD@{5}: commit: added new reply mail module and some parts of custom text editor
+[33m2f7f775[m HEAD@{6}: commit: fixing prod
+[33m3501a9b[m HEAD@{7}: commit: fixing prod
+[33md2e4b33[m HEAD@{8}: commit: fixing prod
+[33m2e24d53[m HEAD@{9}: commit: fixing prod
+[33mbce801f[m HEAD@{10}: commit: fixing prod
+[33m30e55e0[m HEAD@{11}: commit: fixed minor issures in production
+[33md66ad75[m HEAD@{12}: commit: fixed infinte api calling if fetch email in Mail.tsx
+[33me32a5b5[m HEAD@{13}: commit: fixed infinite loop in fetch api call
+[33mb175a6d[m HEAD@{14}: commit: removed .env file from production
+[33m114a6b5[m HEAD@{15}: commit: fixed redirect url from auth/callback
+[33m4beffbe[m HEAD@{16}: commit: fixed minor issues
+[33m5e70b2d[m HEAD@{17}: reset: moving to 5e70b2d
+[33m42f4f20[m HEAD@{18}: commit: removed .env file from build
+[33m7c442a5[m HEAD@{19}: commit: removed static url of callback GCP
+[33m5e70b2d[m HEAD@{20}: commit: removed the dynamic url coded in fetchReq of Emails
+[33mcb051ff[m HEAD@{21}: commit: fixed issues in importing navBar
+[33m81b9940[m HEAD@{22}: commit: fisec bulid issuses
+[33mb86c205[m HEAD@{23}: commit: fixed minor issue before bulid
+[33me9584d1[m HEAD@{24}: commit: fixed type annoation of pageToken in fetchmail api
+[33mf4c4576[m HEAD@{25}: commit: completed gmail module
+[33m5c8c941[m HEAD@{26}: commit: added getUser data form google server using GCP api
+[33m8faab18[m HEAD@{27}: commit: added login with google module and enhanced ui
+[33m1cae205[m HEAD@{28}: commit: added login with google module
+[33m71995cc[m HEAD@{29}: commit: developed Mail UI and fed it with Dummy data
+[33mb6821c2[m HEAD@{30}: commit (initial): Initial commit from Create Next App

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-// import TextEditor from '../compose mail/TextEditor';
+import TextEditor from '../texteditor/TextEditor';
 import {
   ScrollArea,
   ScrollAreaViewport,
@@ -51,7 +51,7 @@ const EmailContent: React.FC<EmailContentProps> = React.memo(({ emails }) => (
           <div className="flex justify-between my-12 ">
             <ScrollArea className="flex justify-center w-full">
               <div
-                className=" w-full bg-muted rounded-3xl p-6 "
+                className=" w-full bg-muted rounded-3xl p-6 scale-75"
                 dangerouslySetInnerHTML={{ __html: sanitizedHTML }}
               />
             </ScrollArea>
@@ -102,7 +102,7 @@ export function ViewInFullMode({ mail, viewFullMailRef }: IViewInFullMode) {
     }
     threadViewPrevScrollTop.current = currentScrollTop;
   }, []);
-  console.log(mail);
+  // console.log(mail);
 
   return (
     <>
@@ -111,7 +111,7 @@ export function ViewInFullMode({ mail, viewFullMailRef }: IViewInFullMode) {
           <span ref={viewFullMailRef} className="hidden"></span>
         </DialogTrigger>
 
-        <DialogContent className="h-[98vh] w-[80vw] bg-muted p-0  px-0">
+        <DialogContent className="h-[98vh] w-[75vw] bg-muted p-0  px-0">
           <MailHeader email={mail.emails[0]} />
 
           <div className="h-full w-full relative">
@@ -172,7 +172,7 @@ export function ViewInFullMode({ mail, viewFullMailRef }: IViewInFullMode) {
                     <div className="flex justify-between w-full pt-16 pr-5 pl-0">
                       <ScrollArea className="justify-center w-full">
                         <div
-                          className="bg-muted rounded-3xl mb-24 p-6"
+                          className="bg-muted rounded-3xl  p-6 scale-75"
                           dangerouslySetInnerHTML={{
                             __html: DOMPurify.sanitize(
                               mail.emails[0].htmlBody || mail.emails[0].textBody
@@ -189,25 +189,24 @@ export function ViewInFullMode({ mail, viewFullMailRef }: IViewInFullMode) {
                         </div>
                       </div>
                     </div>
-                    {/* <TextEditor /> */}
+                    <div className=" px-16 bg-transparent   ">
+                      <Button
+                        size={'sm'}
+                        className="rounded-full mb-2   space-x-2 flex justify-center items-center bg-black text-white"
+                      >
+                        <Reply size={15} />
+                        <span className="text-xs pr-3 ">Reply</span>
+                      </Button>
+                      <TextEditor />
+                      {/* <div className=" absolute bottom-3 left-7 w-full h-full bg-transparent flex justify-end pr-10 space-x-4 items-center">
+                        <Button className="rounded-full px-10 pl-7 space-x-2 flex justify-center items-center bg-black text-white hover:bg-muted">
+                          <Reply size={20} />
+                          <span>Reply</span>
+                        </Button>
+                      </div> */}
+                    </div>
                   </ScrollAreaViewport>
                 </ScrollArea>
-              </div>
-              <div
-                className={`${
-                  replyForwardButtonVisibility ? '' : 'hidden'
-                } absolute top-0 w-full h-28 bg-transparent `}
-              >
-                <div className="w-full h-full bg-transparent flex justify-end pr-10 space-x-4 items-center">
-                  <Button className="rounded-full px-10 pl-7 space-x-2 flex justify-center items-center bg-black text-white hover:bg-muted">
-                    <Reply size={20} />
-                    <span>Reply</span>
-                  </Button>
-                  <Button className="rounded-full px-10 pl-7 space-x-2 flex justify-center items-center bg-black text-white hover:bg-muted">
-                    <Forward size={20} />
-                    <span>Forward</span>
-                  </Button>
-                </div>
               </div>
             </div>
           </div>

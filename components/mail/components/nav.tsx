@@ -50,7 +50,7 @@ import { PiBuildingOfficeLight } from 'react-icons/pi';
 
 interface NavLabelCount {
   name: string;
-  messagesTotal: number;
+  count: number;
 }
 
 type NavLabelCounts = NavLabelCount[];

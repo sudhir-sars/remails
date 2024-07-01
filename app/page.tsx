@@ -1,14 +1,25 @@
-// 'use client';
-
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import MailComponent from '@/components/mail/MailPage';
-// import Mail from '@/components/main/Mail';
-
+import { cookies } from 'next/headers';
+import { Suspense } from 'react';
+import MailPage from '@/components/mail/MailPage';
 export default function Home() {
+  const cookieStore = cookies();
+
+  const layout = cookieStore.get('react-resizable-panels:layout');
+
+  const collapsed = cookieStore.get('react-resizable-panels:collapsed');
+
+  const defaultLayout = layout ? JSON.parse(layout.value) : undefined;
+
+  const defaultCollapsed = collapsed ? JSON.parse(collapsed.value) : undefined;
+
   return (
-    <main className=" flex max-h-screen h-screen w-screen border flex-col items-center justify-between ">
-      <MailComponent />
-    </main>
+    <>
+      <Suspense>
+        <MailPage
+          defaultLayout={defaultLayout}
+          defaultCollapsed={defaultCollapsed}
+        />
+      </Suspense>
+    </>
   );
 }

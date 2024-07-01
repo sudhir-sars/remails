@@ -49,11 +49,11 @@ interface MailProps {
   defaultCollapsed?: boolean;
   navCollapsedSize: number;
 }
-
-interface NavLabelCount {
+interface INavLabelCounts {
   name: string;
-  messagesTotal: number;
+  count: number;
 }
+
 interface IUserLabels {
   title: string;
   personal: boolean;
@@ -62,12 +62,12 @@ interface IUserLabels {
   personalEmails: string[];
   domainEmails: string[];
   category: string;
+  icon?: any;
 }
 interface IMailsWithFilter {
   [key: string]: IThreads;
 }
 
-type NavLabelCounts = NavLabelCount[];
 export function Mail({
   accounts,
   defaultLayout = [265, 440, 655],
@@ -83,9 +83,8 @@ export function Mail({
   const [mail, setMail] = useState<IThread>(dummyEmail);
   const [mailListLabel, setMailListLabel] = useState<string>('INBOX');
   const [selectedNavItem, setSelectedNavItem] = useState('INBOX');
-  const [mailDisplaySize, setMailDisplaySize] = useState<number>(0);
 
-  const [navLabelCount, setNavLabelCount] = useState<NavLabelCounts>([]);
+  const [navLabelCount, setNavLabelCount] = useState<INavLabelCounts[]>([]);
 
   const userId = localStorage.getItem('userId');
   const [userLabels, setUserLabels] = useState<IUserLabels[]>([]);
@@ -103,18 +102,12 @@ export function Mail({
   const [userLabelFilter, setUserLabelFilter] = useState<string[]>([]);
 
   useEffect(() => {
-    const defaultCategories = [
-      'INBOX',
-      'DRAFTS',
-      'SENT',
-      'JUNK',
-      'TRASH',
-      'ARCHIVE',
-    ];
+    const defaultCategories = navLabelCount.map((label) => label.name);
     const newMailsWithFilter: IMailsWithFilter = {};
 
     // Filter for default categories
     defaultCategories.forEach((category) => {
+      // const formattedCategory=category.replace(/^Category_/, '').toUpperCase()
       newMailsWithFilter[category] = mails
         .map((thread) => ({
           threadId: thread.threadId,
@@ -173,19 +166,10 @@ export function Mail({
   }
 
   const fetchEmail = async () => {
-    console.log('old: ' + checkForOldMail);
-    console.log('new: ' + checkForNewMail);
-    if (checkForNewMail) {
-      console.log('fetching for New');
-    }
-    if (checkForOldMail) {
-      console.log('fetching for Old');
-    }
-
     const token = localStorage.getItem('refreshToken');
 
     if (!token) {
-      console.error('No token found in localStorage');
+      window.location.href = '/signup';
       return;
     }
 
@@ -208,13 +192,8 @@ export function Mail({
             'lastFetchTime',
             Math.floor(parseInt(lastFetchTime) / 1000).toString()
           );
-        } else {
-          console.log('no lastFetchTime found aborting fetch New');
-          return;
         }
       }
-
-      console.log(params);
 
       const response = await fetch(`api/fetchmail/gmail?${params.toString()}`);
 
@@ -224,8 +203,8 @@ export function Mail({
         if (responseData.success) {
           const resThreads: IThreads = responseData.data;
 
-          setNavLabelCount(responseData.labels);
-
+          setNavLabelCount(responseData.labelCounts);
+          console.log(navLabelCount);
           const sortedMails = sortMails([...mails, ...resThreads]);
 
           setMails(sortedMails);
@@ -266,9 +245,11 @@ export function Mail({
         }
       } else {
         console.error('Failed to fetch emails:', response.statusText);
+        window.location.href = '/signup';
       }
     } catch (err) {
       console.error('Error during email fetch:', err);
+      window.location.href = '/signup';
     }
   };
 
@@ -283,7 +264,16 @@ export function Mail({
       const resData = await response.json();
 
       if (resData.success) {
-        setUserLabels(resData.data.labels);
+        const temPUserLabels = resData.data.labels;
+        temPUserLabels.map(async (label) => {
+          if (label.domain) {
+            label.domainEmails.map(async (domain) => {
+              label.icon = `https://logo.clearbit.com/${domain}`;
+            });
+          }
+        });
+        console.log(temPUserLabels);
+        setUserLabels(temPUserLabels);
       } else {
         console.log('Failed to fetch labels');
       }
@@ -291,43 +281,10 @@ export function Mail({
       console.error('Error fetching labels:', error);
     }
   };
-  const fetchUserLabelsIcons = async () => {
-    try {
-      await Promise.all(
-        userLabels.map(async (label) => {
-          if (label.domain) {
-            await Promise.all(
-              label.domainEmails.map(async (domain) => {
-                try {
-                  const response = await fetch(
-                    `https://logo.clearbit.com/${domain}`
-                  );
-                  if (response.ok) {
-                    console.log('sucessfully fetched icons');
-                    label.icon = response.url;
-                  } else {
-                    throw new Error(`Failed to fetch icon for ${domain}`);
-                  }
-                } catch (error) {
-                  console.error(`Error fetching icon for ${domain}:`, error);
-                }
-              })
-            );
-          }
-        })
-      );
-    } catch (error) {
-      console.error('Error fetching labels:', error);
-      throw error;
-    }
-  };
-
-  // console.log(userLabels);
 
   useEffect(() => {
     setIsFetching(true);
     fetchEmail();
-
     fetchUserLabels();
   }, []);
 
@@ -339,17 +296,15 @@ export function Mail({
           document.cookie = `react-resizable-panels:layout=${JSON.stringify(
             sizes
           )}`;
-          setMailDisplaySize(sizes[2]);
-          // console.log(mailDisplaySize);
         }}
-        className="h-full  w-full "
+        className=""
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}
           collapsedSize={navCollapsedSize}
           collapsible={true}
-          minSize={15}
-          maxSize={20}
+          minSize={13}
+          maxSize={15}
           onCollapse={() => {
             setIsCollapsed(true);
             document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
@@ -489,10 +444,7 @@ export function Mail({
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[2]} minSize={35}>
-          <MailDisplay
-            mailDisplaySize={mailDisplaySize}
-            mail={mail.emails[0]}
-          />
+          <MailDisplay mail={mail.emails[0]} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </TooltipProvider>

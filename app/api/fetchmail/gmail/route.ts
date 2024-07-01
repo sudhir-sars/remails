@@ -12,7 +12,7 @@ interface DecodedToken {
   refreshToken: string;
 }
 
-async function extractContent(email: gmail_v1.Schema$Message, auth: OAuth2Client): Promise<{ textBody: string, htmlBody: string, attachments: gmail_v1.Schema$MessagePart[] }> {
+async function extractContent(email: gmail_v1.Schema$Message): Promise<{ textBody: string, htmlBody: string, attachments: gmail_v1.Schema$MessagePart[] }> {
   const parts = email.payload?.parts || [];
   let textBody = '';
   let htmlBody = '';
@@ -21,12 +21,10 @@ async function extractContent(email: gmail_v1.Schema$Message, auth: OAuth2Client
   const recursiveExtract = async (parts: gmail_v1.Schema$MessagePart[]): Promise<void> => {
     for (const part of parts) {
       if (part.mimeType === 'text/plain' && part.body?.data) {
-        textBody = Buffer.from(part.body.data, 'base64').toString('utf-8')
+        textBody = Buffer.from(part.body.data, 'base64').toString('utf-8');
       } else if (part.mimeType === 'text/html' && part.body?.data) {
-        // htmlBody = Buffer.from(part.body.data, 'base64').toString('utf-8').replace(/\r\n/g, '');
         htmlBody = Buffer.from(part.body.data, 'base64').toString('utf-8');
-      }
-       else if (part.filename && part.body?.attachmentId) {
+      } else if (part.filename && part.body?.attachmentId) {
         attachments.push(part);
       } else if (part.parts) {
         await recursiveExtract(part.parts);
@@ -36,18 +34,15 @@ async function extractContent(email: gmail_v1.Schema$Message, auth: OAuth2Client
 
   await recursiveExtract(parts);
 
-  // If no text body is found, check top-level payload as fallback
+  // Fallback checks
   if (!textBody && email.payload?.mimeType === 'text/plain' && email.payload?.body?.data) {
-    textBody = Buffer.from(email.payload.body.data, 'base64').toString('utf-8')
+    textBody = Buffer.from(email.payload.body.data, 'base64').toString('utf-8');
   }
 
-  // If no HTML body is found, check top-level payload as fallback
   if (!htmlBody && email.payload?.mimeType === 'text/html' && email.payload?.body?.data) {
-    // htmlBody = Buffer.from(email.payload.body.data, 'base64').toString('utf-8').replace(/\r\n/g, '');
     htmlBody = Buffer.from(email.payload.body.data, 'base64').toString('utf-8');
   }
 
-  // Fallback for attachments: Check top-level payload if no attachments found
   if (attachments.length === 0) {
     const topLevelParts = email.payload?.parts || [];
     for (const part of topLevelParts) {
@@ -60,7 +55,7 @@ async function extractContent(email: gmail_v1.Schema$Message, auth: OAuth2Client
   return { textBody, htmlBody, attachments };
 }
 
-async function getAttachmentInfo(gmail: gmail_v1.Gmail, userId: string, messageId: string, attachmentId: string, accessToken: string) {
+async function getAttachmentInfo(gmail: gmail_v1.Gmail, userId: string, messageId: string, attachmentId: string) {
   try {
     const response = await gmail.users.messages.attachments.get({
       userId,
@@ -83,10 +78,10 @@ async function formatEmailData(gmail: gmail_v1.Gmail, email: gmail_v1.Schema$Mes
   const getHeader = (name: string) => headers.find(header => header.name?.toLowerCase() === name)?.value || '';
   const [senderName, senderEmail] = getHeader('from').split('<');
 
-  const { textBody, htmlBody, attachments } = await extractContent(email, oAuth2Client);
+  const { textBody, htmlBody, attachments } = await extractContent(email);
 
   const attachmentPromises = attachments.map(async (attachment) => {
-    const attachmentInfo = await getAttachmentInfo(gmail, 'me', email.id!, attachment.body!.attachmentId!, accessToken);
+    const attachmentInfo = await getAttachmentInfo(gmail, 'me', email.id!, attachment.body!.attachmentId!);
     return {
       filename: attachment.filename!,
       mimeType: attachment.mimeType || 'application/octet-stream',
@@ -139,6 +134,43 @@ async function fetchEmailThreads(auth: OAuth2Client, threadIds: Set<string>, acc
   return threads.filter(thread => thread !== null);
 }
 
+async function fetchLabelCounts(auth: OAuth2Client) {
+  const gmail = google.gmail({ version: 'v1', auth });
+  const userId = 'me';
+
+  try {
+    const now = new Date();
+    const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 1, 0);
+    const after = Math.floor(startTime.getTime() / 1000);
+
+    const labelsResponse = await gmail.users.labels.list({ userId });
+    const labels = labelsResponse.data.labels || [];
+
+    const labelCountsPromises = labels.map(async (label) => {
+      try {
+        const messagesResponse = await gmail.users.messages.list({
+          userId,
+          labelIds: label.id ? [label.id] : undefined,
+          q: label.id ? `after:${after}` : undefined,
+        });
+
+        const count = messagesResponse.data.resultSizeEstimate || 0;
+        return { name: label.name || 'unknown', count };
+      } catch (error) {
+        console.error(`Error fetching details for label ${label.name}:`, error);
+        return { name: label.name || 'unknown', count: 0 };
+      }
+    });
+
+    const labelCountsArray = await Promise.all(labelCountsPromises);
+    return labelCountsArray;
+  } catch (err) {
+    console.error('Error fetching label counts:', err);
+    throw err;
+  }
+}
+
+
 async function fetchEmails(auth: OAuth2Client, pageToken: string | null, lastFetchTime: string | null, accessToken: string) {
   const gmail = google.gmail({ version: 'v1', auth });
   const userId = 'me';
@@ -148,7 +180,7 @@ async function fetchEmails(auth: OAuth2Client, pageToken: string | null, lastFet
 
     const response = await gmail.users.messages.list({
       userId,
-      maxResults: 10,
+      maxResults: 50,
       q: query,
       pageToken: pageToken || undefined,
       fields: 'messages(id,threadId),nextPageToken',
@@ -157,9 +189,12 @@ async function fetchEmails(auth: OAuth2Client, pageToken: string | null, lastFet
 
     const threadIds = new Set<string>((response.data.messages || []).map(message => message.threadId!));
 
-    const threads = await fetchEmailThreads(auth, threadIds, accessToken);
-    console.log(`fetched ${threads.length} `)
-    return { threads, nextPageToken: response.data.nextPageToken, currentFetchTime };
+    const [threads, labelCounts] = await Promise.all([
+      fetchEmailThreads(auth, threadIds, accessToken),
+      fetchLabelCounts(auth)
+    ]);
+
+    return { threads, nextPageToken: response.data.nextPageToken, currentFetchTime, labelCounts };
   } catch (err) {
     console.error('Error fetching emails:', err);
     throw err;
@@ -182,8 +217,9 @@ export const GET = async (req: NextRequest) => {
     const { credentials } = await oAuth2Client.refreshAccessToken();
     oAuth2Client.setCredentials(credentials);
 
-    const { threads, nextPageToken, currentFetchTime } = await fetchEmails(oAuth2Client, pageToken, lastFetchTime, credentials.access_token!);
-    return NextResponse.json({ success: true, data: threads, nextPageToken, currentFetchTime }, { status: 200 });
+    const { threads, nextPageToken, currentFetchTime, labelCounts } = await fetchEmails(oAuth2Client, pageToken, lastFetchTime, credentials.access_token!);
+
+    return NextResponse.json({ success: true, data: threads, nextPageToken, currentFetchTime, labelCounts }, { status: 200 });
   } catch (error) {
     console.error('Error retrieving access token', error);
     return NextResponse.json({ success: false, error: 'Failed to retrieve access token' }, { status: 500 });

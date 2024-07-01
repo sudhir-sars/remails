@@ -16,6 +16,11 @@ export const GET = async (req: NextRequest) => {
   const tokenGenCode = url.searchParams.get('code');
   const state = url.searchParams.get('state');
   let sessionId: string;
+  console.log("Search Parameters:");
+
+  url.searchParams.forEach((value, key) => {
+    console.log(`${key}: ${value}`);
+  });
 
   try {
     ({ sessionId } = JSON.parse(state || '{}'));

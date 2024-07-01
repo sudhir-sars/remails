@@ -54,12 +54,11 @@ import { IThreads, IThread, IEmail } from './IMail';
 
 interface MailDisplayProps {
   mail: IEmail;
-  mailDisplaySize: number;
 }
 // import { ReplyModal } from './ReplyComponent';
 import { ForwardModal } from './ForwardModal';
 
-export function MailDisplay({ mail, mailDisplaySize }: MailDisplayProps) {
+export function MailDisplay({ mail }: MailDisplayProps) {
   const parentRef = useRef(null);
   const today = new Date();
   const [scale, setScale] = useState(100);
@@ -67,18 +66,6 @@ export function MailDisplay({ mail, mailDisplaySize }: MailDisplayProps) {
   const [reply, setReply] = useState<boolean>(false);
   const [forward, setForward] = useState<boolean>(false);
   const [fullView, setFullView] = useState(true);
-
-  useEffect(() => {
-    function handleResize() {
-      if (mailDisplaySize < 44) {
-        setScale(0.7); // Set scale as a percentage (multiplied by 100)
-      }
-      if (mailDisplaySize > 45) {
-        setScale(0.9);
-      }
-    }
-    handleResize();
-  }, [mailDisplaySize]);
 
   return (
     <div className="flex h-full flex-col w-full">
