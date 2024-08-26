@@ -89,9 +89,9 @@ export default function Component() {
             </div>
           </div>
         </section>
-        <section className="w-full flex justify-center items-center flex-col">
+        <section className="w-full flex justify-center items-center flex-col mt-14">
           <div className="w-[70vw] bg-border rounded-full h-1 mb-3"></div>
-          <div className="w-[75vw]  h-[75vh] py-0 md:py-0 lg:py-0 bg-background rounded-xl mb-20 overflow-hidden flex justify-center items-center">
+          <div className="w-[75vw] py-0 md:py-0 lg:py-0 bg-background rounded-xl mb-20 overflow-hidden flex justify-center items-center">
             <div className="w-full h-full px-0 md:px-0">
               <Carousel
                 opts={{
@@ -117,7 +117,7 @@ export default function Component() {
           </div>
         </section>
 
-        <section className="w-full h-[85vh] py-12 md:py-24 lg:py-32 bg-muted rounded-xl">
+        <section className="w-full  py-12 md:py-24 lg:py-32 bg-muted rounded-xl">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -143,7 +143,7 @@ export default function Component() {
           </div>
         </section>
         {/* New Section: Simulated Browser Window */}
-        <section className="w-full py-12 md:py-24 lg:py-32">
+        {/* <section className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -165,7 +165,7 @@ export default function Component() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
       <Footer />
     </div>

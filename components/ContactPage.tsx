@@ -45,7 +45,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen items-center">
       <NavBar />
       <main className="flex-grow w-[85vw]">
         <section className="w-full py-12 md:py-24 lg:py-32">

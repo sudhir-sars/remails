@@ -15,7 +15,7 @@ interface FeatureCardProps {
 
 export default function Features() {
   return (
-    <div className="flex flex-col min-h-[100dvh] ">
+    <div className="flex flex-col min-h-[100dvh] items-center ">
       <NavBar />
 
       <main className="flex-1 w-[85vw]">
