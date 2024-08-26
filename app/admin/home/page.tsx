@@ -21,6 +21,7 @@ import SparklesText from '@/components/magicui/sparkles-text';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const socket = io(`${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}`);
+import ScaledApp from '@/components/Scaler';
 
 interface User {
   id: string;
@@ -141,60 +142,62 @@ const HomePage = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col ">
-      <div className="flex flex-col min-h-[100dvh] ">
-        <header className="sticky top-0 px-4 lg:px-6 h-14 flex items-center border-b bg-white z-50 mt-6 mx-44">
-          <Link
-            href="#"
-            className="flex items-center justify-center"
-            prefetch={false}
-          >
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          </Link>
-          <nav className="ml-auto flex items-center gap-4 sm:gap-6">
+    <ScaledApp>
+      <div className="flex min-h-screen flex-col ">
+        <div className="flex flex-col min-h-[100dvh] ">
+          <header className="sticky top-0 px-4 lg:px-6 h-14 flex items-center border-b bg-white z-50 mt-6 mx-44">
             <Link
               href="#"
-              className="text-sm font-medium hover:underline underline-offset-4"
+              className="flex items-center justify-center"
               prefetch={false}
             >
-              Features
+              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             </Link>
-            <Link
-              href="#"
-              className="text-sm font-medium hover:underline underline-offset-4"
-              prefetch={false}
-            >
-              About
-            </Link>
-            <Link
-              href="#"
-              className="text-sm font-medium hover:underline underline-offset-4"
-              prefetch={false}
-            >
-              Contact
-            </Link>
-            <ThemeToggle />
-            <Button variant={'outline'} onClick={handleLogout}>
-              Logout
-            </Button>
-          </nav>
-        </header>
+            <nav className="ml-auto flex items-center gap-4 sm:gap-6">
+              <Link
+                href="#"
+                className="text-sm font-medium hover:underline underline-offset-4"
+                prefetch={false}
+              >
+                Features
+              </Link>
+              <Link
+                href="#"
+                className="text-sm font-medium hover:underline underline-offset-4"
+                prefetch={false}
+              >
+                About
+              </Link>
+              <Link
+                href="#"
+                className="text-sm font-medium hover:underline underline-offset-4"
+                prefetch={false}
+              >
+                Contact
+              </Link>
+              <ThemeToggle />
+              <Button variant={'outline'} onClick={handleLogout}>
+                Logout
+              </Button>
+            </nav>
+          </header>
 
-        <main className="flex-col space-y-12 p-8 mx-44">
-          <UserTable
-            connectedUsers={connectedUsers}
-            onDisconnect={handleDisconnect}
-            onMessage={handleMessageUser}
-          />
-          <div className="flex justify-center">
-            <MessageUsers
-              onBroadcast={handleBroadcastMessage}
-              onMessage={handleNotifyUser}
+          <main className="flex-col space-y-12 p-8 mx-44">
+            <UserTable
+              connectedUsers={connectedUsers}
+              onDisconnect={handleDisconnect}
+              onMessage={handleMessageUser}
             />
-          </div>
-        </main>
+            <div className="flex justify-center">
+              <MessageUsers
+                onBroadcast={handleBroadcastMessage}
+                onMessage={handleNotifyUser}
+              />
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </ScaledApp>
   );
 };
 
