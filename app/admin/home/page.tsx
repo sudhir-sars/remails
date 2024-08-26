@@ -145,7 +145,7 @@ const HomePage = () => {
     <ScaledApp>
       <div className="flex min-h-screen flex-col ">
         <div className="flex flex-col min-h-[100dvh] ">
-          <header className="sticky top-0 px-4 lg:px-6 h-14 flex items-center border-b bg-white z-50 mt-6 mx-44">
+          <header className="sticky top-0 px-4 lg:px-6 h-14 flex items-center border-b bg-background z-50 mt-6 mx-44">
             <Link
               href="#"
               className="flex items-center justify-center"
