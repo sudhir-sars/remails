@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "target": "ES2015",
+    "downlevelIteration": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -21,6 +23,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/sub/mailList.ts", "components/editor/icons.tss", "app/api/gmail/watchDogFetcher", "app/api/gmail/setupWatchDogOnLogin", "app/api/fetchmail/search", "app/api/fetchAttachment/downloadAttachment"],
+  "exclude": ["node_modules", "components/plate-ui"]
 }

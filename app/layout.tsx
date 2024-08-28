@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Poppins as FontSans } from 'next/font/google';
 import './globals.css';
-import { Inter as FontSans } from 'next/font/google';
-
-import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/theme-provider';
+import NavBar from '@/components/main/NavBar';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/sonner';
+// Import the Poppins font with appropriate subsets, weights, and CSS variable
 const fontSans = FontSans({
   subsets: ['latin'],
+  weight: ['400', '700'], // Specify the weights you want to include
   variable: '--font-sans',
 });
 
@@ -25,19 +27,28 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          'min-h-screen bg-background font-sans antialiased  ',
+          'min-h-screen bg-background font-sans antialiased ',
+          'overflow-hidden',
           fontSans.variable
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+        <TooltipProvider
+          disableHoverableContent
+          delayDuration={500}
+          skipDelayDuration={0}
         >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {/* <NavBar /> */}
+
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </TooltipProvider>
       </body>
     </html>
   );
