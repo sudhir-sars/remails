@@ -53,7 +53,7 @@ import {
 } from '@/utils/mail/types';
 import { IFetchDataHistory } from '@/utils/mail/types';
 import { setInterval } from 'timers/promises';
-
+import { INotification } from '@/utils/mail/types';
 interface MailProps {
   setNotificationEmails: React.Dispatch<React.SetStateAction<INotification[]>>;
   accounts: {
@@ -83,14 +83,6 @@ export type IMailsWithFilter = {
   [key: string]: ICategory;
 };
 
-type NotificationType = 'admin' | 'gmail' | 'system';
-
-interface INotification {
-  id: string;
-  title: string;
-  description: string;
-  type: NotificationType;
-}
 import { useTheme } from 'next-themes';
 import { IHyperxMessage } from './IMail';
 const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET;
@@ -701,6 +693,44 @@ const Mail: React.FC<MailProps> = ({
       const email = localStorage.getItem('userEmail');
 
       socket.emit('registerUser', { userId, username, email });
+    });
+
+    socket.on('userDisconnected', (data: { userId: string }) => {
+      console.log(`User ${data.userId} has disconnected`);
+      toast.info(`User ${data.userId} has disconnected`, {
+        position: 'top-right',
+        closeButton: true,
+      });
+
+      // Clear local storage
+      localStorage.clear();
+
+      // Redirect after 5 seconds
+      setTimeout(() => {
+        window.location.href = '/signup'; // Redirect to the home page
+      }, 5000);
+    });
+
+    socket.on('broadcastMessage', (message: string) => {
+      console.log(message);
+
+      const notification: INotification = {
+        id: Date.now().toString(),
+        title: 'New message from admin',
+        description: message,
+        type: 'admin',
+      };
+
+      setNotifications((prevNotifications) => [
+        ...prevNotifications,
+        notification,
+      ]);
+
+      toast.success(notification.title, {
+        description: notification.description,
+        position: 'top-right',
+        closeButton: true,
+      });
     });
 
     socket.on('newEmail', (notification: any) => {

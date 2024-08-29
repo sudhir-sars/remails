@@ -35,6 +35,15 @@ export type IFetchDataHistory = {
   [key: string]: ICategoryAttributes;
 };
 
+type NotificationType = 'admin' | 'gmail' | 'system';
+
+export interface INotification {
+  id: string;
+  title: string;
+  description: string;
+  type: NotificationType;
+}
+
 
 export type IGmailApiLabel = (IGmailApiLabelItems | string)[];
 
