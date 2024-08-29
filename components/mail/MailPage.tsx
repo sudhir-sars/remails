@@ -243,7 +243,7 @@ export default function MailPage({
 
   useEffect(() => {
     setupWatchdog();
-    initiateUserAddressFetch();
+    // initiateUserAddressFetch();
 
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
       await Promise.all([endWatch(), dismantleDrive()]);
