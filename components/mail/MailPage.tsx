@@ -129,38 +129,42 @@ export default function MailPage({
 
       const lastFetchData = await lastFetchResponse.json();
       localStorage.setItem('userName', JSON.stringify(lastFetchData.data.name));
-
-      const updateResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_HOST}/api/userData/updateUserData`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId,
-            userData: { userAddressLastFetchTime: Date.now() },
-          }),
-        }
+      localStorage.setItem(
+        'userEmail',
+        JSON.stringify(lastFetchData.data.email)
       );
 
-      if (!updateResponse.ok)
-        return console.error('Error in updating user data');
+      // const updateResponse = await fetch(
+      //   `${process.env.NEXT_PUBLIC_HOST}/api/userData/updateUserData`,
+      //   {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify({
+      //       userId,
+      //       userData: { userAddressLastFetchTime: Date.now() },
+      //     }),
+      //   }
+      // );
 
-      const schedulerResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/api/APIRequestScheduler/userDataScheduler`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            token,
-            userId,
-            lastFetchTime: lastFetchData.data?.userAddressLastFetchTime,
-          }),
-        }
-      );
+      // if (!updateResponse.ok)
+      //   return console.error('Error in updating user data');
 
-      if (!schedulerResponse.ok)
-        console.error('Error in scheduling user data fetch');
-      else console.log('User data fetch scheduled successfully');
+      // const schedulerResponse = await fetch(
+      //   `${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/api/APIRequestScheduler/userDataScheduler`,
+      //   {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify({
+      //       token,
+      //       userId,
+      //       lastFetchTime: lastFetchData.data?.userAddressLastFetchTime,
+      //     }),
+      //   }
+      // );
+
+      // if (!schedulerResponse.ok)
+      //   console.error('Error in scheduling user data fetch');
+      // else console.log('User data fetch scheduled successfully');
     } catch (error) {
       console.error('Error during the fetch process:', error);
     }

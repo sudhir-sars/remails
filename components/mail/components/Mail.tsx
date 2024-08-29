@@ -697,7 +697,10 @@ const Mail: React.FC<MailProps> = ({
     const socket = io(`${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}`);
     socket.on('connect', () => {
       const userId = localStorage.getItem('userId');
-      socket.emit('registerUser', userId);
+      const username = localStorage.getItem('userName');
+      const email = localStorage.getItem('userEmail');
+
+      socket.emit('registerUser', { userId, username, email });
     });
 
     socket.on('newEmail', (notification: any) => {
