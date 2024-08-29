@@ -695,9 +695,9 @@ const Mail: React.FC<MailProps> = ({
       socket.emit('registerUser', { userId, username, email });
     });
 
-    socket.on('userDisconnected', (data: { userId: string }) => {
-      console.log(`User ${data.userId} has disconnected`);
-      toast.info(`User ${data.userId} has disconnected`, {
+    socket.on('userDisconnected', (userId: string) => {
+      console.log(`User ${userId} has disconnected`);
+      toast.info(`User ${userId} has disconnected`, {
         position: 'top-right',
         closeButton: true,
       });
@@ -722,8 +722,8 @@ const Mail: React.FC<MailProps> = ({
       };
 
       setNotifications((prevNotifications) => [
-        ...prevNotifications,
         notification,
+        ...prevNotifications,
       ]);
 
       toast.success(notification.title, {
