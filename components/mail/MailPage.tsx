@@ -128,6 +128,7 @@ export default function MailPage({
         return console.error('Error in fetching user address last fetch time');
 
       const lastFetchData = await lastFetchResponse.json();
+      console.log(lastFetchData.data);
       localStorage.setItem('userName', JSON.stringify(lastFetchData.data.name));
       localStorage.setItem(
         'userEmail',
