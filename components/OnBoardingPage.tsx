@@ -179,7 +179,7 @@ export default function OnBoardingPage({
                     Please review and accept our privacy policy.
                   </p>
                 </div>
-                <ScrollArea className="h-[70vh] w-full rounded-md">
+                <ScrollArea className="h-[50vh] w-full rounded-md">
                   <ScrollAreaViewport ref={scrollAreaRef}>
                     <div className="bg-card p-4 rounded-lg space-y-4">
                       <div className="max-w-none px-4 py-6 mx-auto">
