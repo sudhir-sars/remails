@@ -419,7 +419,7 @@ const NavBar: React.FC<INavBar> = ({ notificationEmails }) => {
                     initial={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 100 }}
                     transition={{ duration: 0.3 }}
-                    className="w-full border border-border rounded-lg shadow-md p-4 bg-white dark:bg-muted mb-4"
+                    className="w-full border border-border rounded-lg shadow-md p-4 bg-white dark:bg-black mb-4"
                   >
                     <div className="flex justify-between items-start relative">
                       <div className="flex items-start">
