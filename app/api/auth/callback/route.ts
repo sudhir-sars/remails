@@ -91,18 +91,15 @@ async function initiateScheduler(refreshToken: string, userId: string) {
   try {
     const token = jwt.sign({ refreshToken }, JWT_SECRET, { expiresIn: '1y' });
 
-    const [schedulerResponse, 
-    
-    ] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_HOST}/api/APIRequestScheduler/userDataScheduler`, {
+    const schedulerResponse= await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/APIRequestScheduler/userDataScheduler`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ token, userId }),
-      }),
+      })
       
-    ]);
+   
 
     if (!schedulerResponse.ok) {
       console.error(`Scheduler initiation failed: ${schedulerResponse.status}`);

@@ -25,7 +25,6 @@ export interface ApiRequest {
   userId?: string;
 }
 
-
 async function fetchEmails(auth: OAuth2Client, lastFetchTime?: string) {
   const gmail = google.gmail({ version: 'v1', auth });
   const userId = 'me';
@@ -79,7 +78,7 @@ export const POST = async (req: NextRequest) => {
       const currentFetchTime = Date.now();
 
       if (currentFetchTime - lastFetchTimeMs < oneHour) {
-        console.log('Too early to make another request')
+        console.log('Too early to make another request');
         return NextResponse.json({ success: true, message: "Too early to make another request" }, { status: 200 });
       }
     }
@@ -95,9 +94,10 @@ export const POST = async (req: NextRequest) => {
     const batchSize = 50;
 
     if (messageIds.length >= batchSize) {
-      const batchSize = 50;
       let cumulativeDelay = 0;
       const delayIncrement = 2000; // 2 seconds increment between batches
+
+      const requests: ApiRequest[] = [];
 
       for (let i = 0; i < messageIds.length; i += batchSize) {
         const batch = messageIds.slice(i, i + batchSize);
@@ -107,35 +107,39 @@ export const POST = async (req: NextRequest) => {
         const request: ApiRequest = {
           id: `fetch-${Date.now()}`, // Unique ID for each request
           method: 'POST', // HTTP method
-          url: `${process.env.NEXT_PUBLIC_HOST}/api/APIRequestScheduler/fetchUserMailBoxAddress`, 
+          url: `${process.env.NEXT_PUBLIC_HOST}/api/APIRequestScheduler/fetchUserMailBoxAddress`,
           payload: { messageIds: batch, token, userId },
           scheduledTime: requestTime,
           retryCount: 0,
           maxTries: 10,
         };
-        
 
+        requests.push(request);
 
-        // Send request data to Express server for scheduling
-        // const response = await fetch(`http://localhost:3001/APIRequestScheduler`, {
+        cumulativeDelay += delayIncrement; // Increment the delay for the next batch
+      }
+
+      // Send all request data to Express server in one batch
+      try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/APIRequestScheduler`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({request}),
+          body: JSON.stringify({ requests }),
         });
 
         if (!response.ok) {
           throw new Error(`Failed to send data to Express server: ${response.statusText}`);
         }
 
-        cumulativeDelay += delayIncrement; // Increment the delay for the next batch
+        return NextResponse.json({ success: true, data: { currentFetchTime }, message: "Scheduled fetch successfully" }, { status: 200 });
+      } catch (error) {
+        console.error('Error sending batch request to Express server:', error);
+        return NextResponse.json({ success: false, error: 'Failed to send batch request to Express server' }, { status: 500 });
       }
-
-      return NextResponse.json({ success: true, data: { currentFetchTime }, message: "Scheduled fetch successfully" }, { status: 200 });
     } else {
-      console.log('Not enough message IDs to schedule a request. Please try again after some time.')
+      console.log('Not enough message IDs to schedule a request. Please try again after some time.');
       return NextResponse.json({
         success: true,
         message: "Not enough message IDs to schedule a request. Please try again after some time."
