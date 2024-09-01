@@ -70,10 +70,10 @@ async function saveUser(userInfo: any, tokens: any, historyId: string) {
     historyId,
     userAddressLastFetchTime:Date.now(),
     refreshToken: tokens.refresh_token,
-    isOnBoardingNotDone: true,
+    isOnBoardingNotDone: false,
   };
 
-  const existingUser = await User.findOne({ userId: id }).exec();
+  const existingUser = await User.findOne({ userId: id })
   
   if (existingUser) {
     if (existingUser.isOnBoardingNotDone) {
