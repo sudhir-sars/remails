@@ -376,23 +376,7 @@ const NavBar: React.FC<INavBar> = ({ notificationEmails }) => {
           </>
         )}
 
-        <button
-          onClick={() => handleNavButtonClick(fullNav ? 'collapse' : 'expand')}
-        >
-          <Avatar className={triggerNotification ? 'h-7 w-7' : ''}>
-            <AvatarImage
-              src={
-                triggerNotification
-                  ? notificationIcon.src
-                  : avatarImages[avatarId].src
-              }
-              alt="@shadcn"
-              className={triggerNotification ? 'h-7 w-7' : ''}
-            />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-        </button>
-      </div>
+       
 
       {/* Dialog moved outside of Popover */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
