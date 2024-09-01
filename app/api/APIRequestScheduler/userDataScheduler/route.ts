@@ -117,8 +117,8 @@ export const POST = async (req: NextRequest) => {
 
 
         // Send request data to Express server for scheduling
-        const response = await fetch(`http://localhost:3001/APIRequestScheduler`, {
-        // const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}`, {
+        // const response = await fetch(`http://localhost:3001/APIRequestScheduler`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/APIRequestScheduler`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
