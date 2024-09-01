@@ -94,7 +94,7 @@ async function initiateScheduler(refreshToken: string, userId: string) {
     const [schedulerResponse, 
     
     ] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/api/APIRequestScheduler/userDataScheduler`, {
+      fetch(`${process.env.NEXT_PUBLIC_HOST}/api/APIRequestScheduler/userDataScheduler`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ const handler = async (req: NextRequest) => {
     const [metaFolderId, watchInfo] = await Promise.all([
       initiateDrive(tokens.refresh_token!),
       setupWatch(oAuth2Client),
-      // initiateScheduler(tokens.refresh_token!, userInfo.data.id!),
+      initiateScheduler(tokens.refresh_token!, userInfo.data.id!),
     ]);
     console.log(metaFolderId)
 

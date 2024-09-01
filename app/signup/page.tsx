@@ -4,18 +4,24 @@ import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
-
+import { BorderBeam } from '@/components/magicui/border-beam';
 import { useState } from 'react';
-
+import carouselImages from '@/utils/carouselImages';
 import { FcGoogle } from 'react-icons/fc';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
 
 import { Button } from '@/components/ui/button';
 import Icons from '@/components/ui/icons';
 
 import { useSearchParams } from 'next/navigation';
 import { SiMicrosoft } from 'react-icons/si';
-
+import MainImage from '@/public/MainImage.png';
 import { createTempSession, verifySessionId } from '@/utils/session';
+import { Image } from '@udecode/plate-media';
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -101,10 +107,10 @@ const Login: React.FC = () => {
                 </div>
               </div>
               <Button
+                disabled={true}
                 onClick={HandleLoginMicrosoft}
                 variant="outline"
                 type="button"
-                disabled={isLoadingM}
                 className="flex items-center justify-center"
               >
                 {isLoadingM ? (
@@ -125,7 +131,7 @@ const Login: React.FC = () => {
               </Link>{' '}
               and{' '}
               <Link
-                href="/privacy"
+                href="/privacypolicy"
                 className="underline underline-offset-4 hover:text-primary"
               >
                 Privacy Policy
@@ -134,33 +140,29 @@ const Login: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-          <div className="absolute inset-0 bg-zinc-900" />
-          <div className="relative z-20 flex items-center text-lg font-medium">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2 h-6 w-6"
-            >
-              <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-            </svg>
-            Acme Inc
-          </div>
-          <div className="relative z-20 mt-auto">
-            <blockquote className="space-y-2">
-              <p className="text-lg">
-                &ldquo;This library has saved me countless hours of work and
-                helped me deliver stunning designs to my clients faster than
-                ever before.&rdquo;
-              </p>
-              <footer className="text-sm">Sofia Davis</footer>
-            </blockquote>
-          </div>
+        <div className="relative  items-center justify-center hidden h-full flex-col bg-muted p-10 text-white lg:flex lg:justify-center lg:items-center dark:border-r">
+          <div className="w-[80%] bg-white rounded-full h-1 mb-3"></div>
+          <Carousel
+            opts={{
+              loop: true,
+            }}
+            autoplay={true}
+            autoplayInterval={3000}
+            className=""
+          >
+            <CarouselContent className="">
+              {carouselImages.map((image, index) => (
+                <CarouselItem className="w-full h-full" key={index}>
+                  <Image
+                    loading="lazy"
+                    src={image.src}
+                    alt={`Feature ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
         </div>
       </div>
     </div>
