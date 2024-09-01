@@ -344,7 +344,7 @@ const NavBar: React.FC<INavBar> = ({ notificationEmails }) => {
           </Popover>
         )}
 
-        {triggerNotification ? (
+        {!triggerNotification ? (
           <>
             <button
               onClick={() =>
