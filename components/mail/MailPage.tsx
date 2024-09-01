@@ -69,27 +69,6 @@ export default function MailPage({
     return await response.json();
   };
 
-  const initiateDrive = async () => {
-    const token = getLocalStorageItem('refreshToken');
-    if (!token)
-      return redirectToSignup('No authentication token found in localStorage');
-
-    const response = await fetch('/api/drive/initiateDrive', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ folderName: 'remailsMetaData' }),
-    });
-
-    if (!response.ok) return (window.location.href = '/signup');
-
-    const data = await response.json();
-    localStorage.setItem('remailsMetaDataFolderId', data.folderId);
-    return data;
-  };
-
   const endWatch = async () => {
     const token = getLocalStorageItem('refreshToken');
     if (!token) return;
@@ -135,37 +114,39 @@ export default function MailPage({
         JSON.stringify(lastFetchData.data.email)
       );
 
-      // const updateResponse = await fetch(
-      //   `${process.env.NEXT_PUBLIC_HOST}/api/userData/updateUserData`,
-      //   {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify({
-      //       userId,
-      //       userData: { userAddressLastFetchTime: Date.now() },
-      //     }),
-      //   }
-      // );
+      const updateResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_HOST}/api/userData/updateUserData`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            userData: { userAddressLastFetchTime: Date.now() },
+          }),
+        }
+      );
 
-      // if (!updateResponse.ok)
-      //   return console.error('Error in updating user data');
+      if (!updateResponse.ok)
+        return console.error('Error in updating user data');
 
-      // const schedulerResponse = await fetch(
-      //   `${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/api/APIRequestScheduler/userDataScheduler`,
-      //   {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify({
-      //       token,
-      //       userId,
-      //       lastFetchTime: lastFetchData.data?.userAddressLastFetchTime,
-      //     }),
-      //   }
-      // );
+      const schedulerResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_HOST}/api/APIRequestScheduler/userDataScheduler`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token,
+            userId,
+            lastFetchTime: lastFetchData.data?.userAddressLastFetchTime,
+          }),
+        }
+      );
 
-      // if (!schedulerResponse.ok)
-      //   console.error('Error in scheduling user data fetch');
-      // else console.log('User data fetch scheduled successfully');
+      if (!schedulerResponse.ok)
+        console.error('Error in scheduling user data fetch');
+      else console.log('User data fetch scheduled successfully');
     } catch (error) {
       console.error('Error during the fetch process:', error);
     }
@@ -178,7 +159,7 @@ export default function MailPage({
     if (metaFolderId) {
       localStorage.setItem('remailsMetaDataFolderId', metaFolderId);
     } else {
-      await initiateDrive();
+      redirectToSignup('Meta folder Id Missing');
     }
 
     if (JWT_token) {

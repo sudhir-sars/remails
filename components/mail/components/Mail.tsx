@@ -163,7 +163,7 @@ const Mail: React.FC<MailProps> = ({
     useState<NodeJS.Timeout | null>(null);
   const [hideTimeout, setHideTimeout] = useState<NodeJS.Timeout | null>(null);
   const mailListRef = useRef<HTMLDivElement>(null);
-  const [notifications, setNotifications] = useState<any[]>([]);
+
   const [historyId, setHistoryId] = useState<string>('');
   const [replyModuleVisibility, setReplyModuleVisibility] =
     useState<boolean>(false);
@@ -251,12 +251,6 @@ const Mail: React.FC<MailProps> = ({
       setIsDarkMode(theme === 'dark');
     }
   }, [theme]);
-
-  useEffect(() => {
-    if (notifications.length > 1) {
-      fetchEmailByHistory(standAloneNotification);
-    }
-  }, [notifications]);
 
   const handleMailListChange = async (
     labelName: string,
@@ -712,8 +706,6 @@ const Mail: React.FC<MailProps> = ({
     });
 
     socket.on('broadcastMessage', (message: string) => {
-      console.log(message);
-
       const notification: INotification = {
         id: Date.now().toString(),
         title: 'New message from admin',
@@ -721,7 +713,7 @@ const Mail: React.FC<MailProps> = ({
         type: 'admin',
       };
 
-      setNotifications((prevNotifications) => [
+      setNotificationEmails((prevNotifications) => [
         notification,
         ...prevNotifications,
       ]);
@@ -736,8 +728,6 @@ const Mail: React.FC<MailProps> = ({
     socket.on('newEmail', (notification: any) => {
       console.log(notification);
       fetchEmailByHistory(notification.newHistoryId);
-      // setStandAloneNotification(notification.newHistoryId);
-      // setNotifications((prev) => [...prev, notification]);
     });
 
     return () => {

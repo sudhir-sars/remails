@@ -146,6 +146,12 @@ const NavBar: React.FC<INavBar> = ({ notificationEmails }) => {
   const [notifications, setNotifications] =
     useState<INotification[]>(notificationsList);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setTriggerNotification(false);
+    }, 8000);
+  }, []);
+
   const handleCloseNotification = (id: string) => {
     setNotifications((prevNotifications) =>
       prevNotifications.filter((n) => n.id !== id)
@@ -278,7 +284,7 @@ const NavBar: React.FC<INavBar> = ({ notificationEmails }) => {
               <button onClick={togglePopover}>
                 <Avatar className="h-6 w-6">
                   <AvatarImage src={notificationIcon.src} alt="Notifications" />
-                  <AvatarFallback>||1</AvatarFallback>
+                  <AvatarFallback>|||</AvatarFallback>
                 </Avatar>
               </button>
             </PopoverTrigger>
@@ -336,6 +342,38 @@ const NavBar: React.FC<INavBar> = ({ notificationEmails }) => {
               </div>
             </PopoverContent>
           </Popover>
+        )}
+
+        {triggerNotification ? (
+          <>
+            <button
+              onClick={() =>
+                handleNavButtonClick(fullNav ? 'collapse' : 'expand')
+              }
+            >
+              <Avatar className={triggerNotification ? 'h-7 w-7' : ''}>
+                <AvatarImage src={avatarImages[avatarId].src} alt="@shadcn" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() =>
+                handleNavButtonClick(fullNav ? 'collapse' : 'expand')
+              }
+            >
+              <Avatar className={triggerNotification ? 'h-7 w-7' : ''}>
+                <AvatarImage
+                  src={notificationIcon.src}
+                  alt="@shadcn"
+                  className={'h-7 w-7'}
+                />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </button>
+          </>
         )}
 
         <button
