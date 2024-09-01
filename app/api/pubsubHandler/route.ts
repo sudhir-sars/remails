@@ -32,7 +32,7 @@ const postHandler = async (req: NextRequest) => {
     };
 
     // Send data to the WebSocket server's HTTP endpoint
-    const response = await fetch(`${process.env.WEBSOCKET_SERVER_URL}/pubsubHandler`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/pubsubHandler`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
