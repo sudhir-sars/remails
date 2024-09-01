@@ -159,7 +159,7 @@ export default function MailPage({
     if (metaFolderId) {
       localStorage.setItem('remailsMetaDataFolderId', metaFolderId);
     } else {
-      redirectToSignup('Meta folder Id Missing');
+      // redirectToSignup('Meta folder Id Missing');
     }
 
     if (JWT_token) {
