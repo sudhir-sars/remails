@@ -87,7 +87,7 @@ const Notification: React.FC<NotificationProps> = ({
       animate={isExpanded ? 'expanded' : 'collapsed'}
       variants={variants}
       transition={{ type: 'spring', stiffness: 500, damping: 50 }}
-      className="w-[350px] h-16 border border-border rounded-lg shadow-md p-4 bg-white dark:bg-muted m-2 mr-5 mb-2 absolute left-0 right-0"
+      className="w-[350px] h-16 border border-border rounded-lg shadow-md p-4 bg-white dark:bg-black m-2 mr-5 mb-2 absolute left-0 right-0"
       style={{ ...style, height: '75px' }}
     >
       <div className="flex justify-between items-start relative">
@@ -125,7 +125,7 @@ const rotateShake = keyframes`
   100% { transform: rotate(0deg); }
 `;
 
-const ShakingImage = styled(AvatarImage)`
+const ShakingImage = styled(notificationIcon.src)`
   display: inline-block;
   animation: ${rotateShake} 0.4s infinite;
 `;
@@ -366,7 +366,7 @@ const NavBar: React.FC<INavBar> = ({ notificationEmails }) => {
             >
               <Avatar className={triggerNotification ? 'h-7 w-7' : ''}>
                 <AvatarImage
-                  src={notificationIcon.src}
+                  src={ShakingImage}
                   alt="@shadcn"
                   className={'h-7 w-7'}
                 />
