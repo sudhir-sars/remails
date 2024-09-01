@@ -22,7 +22,7 @@ function OnboardingContent() {
 
   const verifyUser = useCallback(() => {
     if (!searchParams) {
-      router.push('/signup');
+      // router.push('/signup');
       return;
     }
 
@@ -37,10 +37,10 @@ function OnboardingContent() {
       } catch (error) {
         console.error('Error verifying token:', error);
         localStorage.clear();
-        router.push('/signup');
+        // router.push('/signup');
       }
     } else {
-      router.push('/signup');
+      // router.push('/signup');
     }
   }, [searchParams, router]);
 
