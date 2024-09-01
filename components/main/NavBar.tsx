@@ -375,8 +375,7 @@ const NavBar: React.FC<INavBar> = ({ notificationEmails }) => {
             </button>
           </>
         )}
-
-       
+      </div>
 
       {/* Dialog moved outside of Popover */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
