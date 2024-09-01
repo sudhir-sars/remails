@@ -5,6 +5,7 @@ const LoadingBar: React.FC = () => {
   const loadingContainerStyle: React.CSSProperties = {
     position: 'fixed',
     top: '50%',
+    
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: '100px', // Adjust width as needed
