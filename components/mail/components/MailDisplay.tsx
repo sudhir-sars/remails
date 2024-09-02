@@ -408,6 +408,7 @@ const MailDisplay = React.memo(
                           <div className="ml-auto flex items-center gap-[0.1rem]">
                             <span
                               onClick={() => {
+                                setReplyModuleTempMail(mail);
                                 setShowReply(true);
                                 setShowReplyAll(false);
                                 setShowForward(false);

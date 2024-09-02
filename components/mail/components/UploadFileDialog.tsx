@@ -58,11 +58,19 @@ const UploadFileDialog = ({
   files,
   setFiles,
 }: UploadFileDialogProps) => {
+  const [remailsMetaDataFolderId, setRemailsMetaDataFolderId] =
+    useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
   const [hoveredAttachmentId, setHoveredAttachmentId] = useState<string | null>(
     null
   );
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    setRemailsMetaDataFolderId(
+      localStorage.getItem('remailsMetaDataFolderId')!
+    );
+  }, []);
 
   const handleDelete = async (fileIds: string[]) => {
     try {
@@ -146,6 +154,7 @@ const UploadFileDialog = ({
     const xhr = new XMLHttpRequest();
     const formData = new FormData();
     formData.append('file', fileObj.file);
+    formData.append('remailsMetaDataFolderId', remailsMetaDataFolderId);
 
     xhr.upload.addEventListener('progress', (event) => {
       if (event.lengthComputable) {
@@ -232,7 +241,11 @@ const UploadFileDialog = ({
       );
     });
 
-    xhr.open('POST', '/api/drive/uploadFiles');
+    xhr.open(
+      'POST',
+      `http://localhost:3001/api/drive/uploadFiles`
+      // `${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/api/drive/uploadFiles`
+    );
     xhr.setRequestHeader(
       'Authorization',
       `Bearer ${localStorage.getItem('refreshToken')}`

@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 interface ISuggestables {
+  unMountreplyModule: boolean;
   suggestableMails: IAddress[];
   inputData: string;
   triggerElement?: ReactNode;
@@ -30,6 +31,7 @@ interface ISuggestables {
 }
 
 export default function Suggester({
+  unMountreplyModule,
   domainFlag,
   borderStyle,
   suggestableMails,
@@ -49,8 +51,14 @@ export default function Suggester({
     useState<boolean>(false);
 
   useEffect(() => {
+    setTimeout(() => {
+      setInPutData('');
+    }, 200);
+  }, []);
+
+  useEffect(() => {
     // Run this effect only once when the component mounts and when inputData changes
-    if (inputData && !initialValidationDone) {
+    if (inputData && !initialValidationDone && !unMountreplyModule) {
       const email = inputData.trim();
       let isValid = false;
 
@@ -75,7 +83,7 @@ export default function Suggester({
 
       setInitialValidationDone(true); // Mark initial validation as done
     }
-  }, [inputData]);
+  }, []);
 
   useEffect(() => {
     // Ensure the suggester panel is not open initially if no valid input
@@ -327,7 +335,7 @@ export default function Suggester({
                 />
               ) : (
                 <span onClick={() => setEditingIndex(index)}>
-                  {email.length > 9 ? `${email.substring(0, 10)}...` : email}
+                  {email.length > 9 ? `${email.substring(0, 7)}...` : email}
                 </span>
               )}
               <button

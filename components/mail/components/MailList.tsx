@@ -110,6 +110,7 @@ export default function MailList({
       if (unMountreplyModule === false) {
         setUnMountReplyModule(true);
       }
+
       setReplyModuleTempMail(email);
       setUnMountReplyModule(false);
       setReplyModuleVisibility(true);
@@ -332,7 +333,7 @@ export default function MailList({
                             index === 0 && !checkForNewMail && 'mt-16'
                           )}
                           onClick={() => {
-                            setReplyModuleTempMail(email);
+                            // setReplyModuleTempMail(email);
                             handleMarkAsRead([email.id], email);
                             setMail(email);
                             console.log(email);

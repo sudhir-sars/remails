@@ -128,7 +128,7 @@ export function ReplyModule({
   const [showCc, setShowCc] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
 
-  const [to, setTo] = useState<string>(mail.reply);
+  const [to, setTo] = useState<string>(replyModuleTempMail.reply);
   const [toEmails, setToEmails] = useState<string[]>([]);
 
   const [cc, setCc] = useState<string>('');
@@ -436,6 +436,7 @@ export function ReplyModule({
                     />
                     <div className="flex-grow">
                       <Suggester
+                        unMountreplyModule={unMountreplyModule}
                         setValidEmails={setToEmails}
                         validEmails={toEmails}
                         setInPutData={setTo}
@@ -473,6 +474,7 @@ export function ReplyModule({
                     />
                     <div className="flex-grow">
                       <Suggester
+                        unMountreplyModule={unMountreplyModule}
                         setValidEmails={setCcEmails}
                         validEmails={ccEmails}
                         setInPutData={setCc}
@@ -494,6 +496,7 @@ export function ReplyModule({
                     />
                     <div className="flex-grow">
                       <Suggester
+                        unMountreplyModule={unMountreplyModule}
                         setValidEmails={setBccEmails}
                         validEmails={bccEmails}
                         setInPutData={setBcc}
@@ -787,6 +790,7 @@ export function ReplyModule({
                     />
                     <div className="flex-grow">
                       <Suggester
+                        unMountreplyModule={unMountreplyModule}
                         setValidEmails={setToEmails}
                         validEmails={toEmails}
                         setInPutData={setTo}
@@ -824,6 +828,7 @@ export function ReplyModule({
                     />
                     <div className="flex-grow">
                       <Suggester
+                        unMountreplyModule={unMountreplyModule}
                         setValidEmails={setCcEmails}
                         validEmails={ccEmails}
                         setInPutData={setCc}
@@ -845,6 +850,7 @@ export function ReplyModule({
                     />
                     <div className="flex-grow">
                       <Suggester
+                        unMountreplyModule={unMountreplyModule}
                         setValidEmails={setBccEmails}
                         validEmails={bccEmails}
                         setInPutData={setBcc}

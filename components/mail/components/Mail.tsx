@@ -152,8 +152,8 @@ const Mail: React.FC<MailProps> = ({
   const dndReplyRef = useRef<HTMLDivElement>(null);
   const [isMinimized, setIsMinimized] = useState(false);
   const [bubblePosition, setBubblePosition] = useState({
-    x: window.innerWidth - 10,
-    y: 10,
+    x: window.innerWidth - 40,
+    y: 70,
   });
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
