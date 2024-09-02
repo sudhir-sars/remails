@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 interface ISuggestables {
-  unMountreplyModule: boolean;
+  unMountreplyModule?: boolean;
   suggestableMails: IAddress[];
   inputData: string;
   triggerElement?: ReactNode;
