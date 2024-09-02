@@ -19,9 +19,9 @@ import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { AiOutlineUpload } from 'react-icons/ai'; // Import upload icon
-import { X } from 'lucide-react'; // Import delete icon from Lucide
-import Image from 'next/image'; // Ensure you have next/image installed
+import { AiOutlineUpload } from 'react-icons/ai';
+import { X } from 'lucide-react';
+import Image from 'next/image';
 
 interface FileObject {
   file: File;
@@ -78,7 +78,7 @@ const UploadFileDialog = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('refreshToken')}`, // Ensure you use a valid token
+          Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
         },
         body: JSON.stringify({ fileIds }),
       });
@@ -98,7 +98,7 @@ const UploadFileDialog = ({
           position: 'top-right',
         });
       } else {
-        toast.error(`Failed to delete files.. ${formatTimestamp()}`, {
+        toast.error(`Failed to delete files. ${formatTimestamp()}`, {
           closeButton: true,
           position: 'top-right',
         });
@@ -112,10 +112,6 @@ const UploadFileDialog = ({
       });
     }
   };
-
-  useEffect(() => {
-    console.log(files);
-  }, [files]);
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -156,6 +152,11 @@ const UploadFileDialog = ({
     formData.append('file', fileObj.file);
     formData.append('remailsMetaDataFolderId', remailsMetaDataFolderId);
 
+    const toastId = toast.loading(`Uploading "${fileObj.filename}"...`, {
+      closeButton: true,
+      position: 'top-right',
+    });
+
     xhr.upload.addEventListener('progress', (event) => {
       if (event.lengthComputable) {
         const progress = Math.round((event.loaded / event.total) * 100);
@@ -187,13 +188,13 @@ const UploadFileDialog = ({
             )
           );
           setUploadedFilesSet((prevSet) =>
-            new Set(prevSet).add(fileObj.fileId!)
+            new Set(prevSet).add(data.files[0].fileId)
           );
           toast.success(
             `File "${fileObj.filename}" uploaded successfully. ${formatTimestamp()}`,
             {
-              closeButton: true,
-              position: 'top-right',
+              id: toastId,
+              duration: 5000,
             }
           );
         } else {
@@ -205,8 +206,7 @@ const UploadFileDialog = ({
           toast.error(
             `Failed to upload file "${fileObj.filename}". ${formatTimestamp()}`,
             {
-              closeButton: true,
-              position: 'top-right',
+              id: toastId,
             }
           );
         }
@@ -219,8 +219,7 @@ const UploadFileDialog = ({
         toast.error(
           `Error uploading file "${fileObj.filename}". ${formatTimestamp()}`,
           {
-            closeButton: true,
-            position: 'top-right',
+            id: toastId,
           }
         );
       }
@@ -235,16 +234,14 @@ const UploadFileDialog = ({
       toast.error(
         `Error uploading file "${fileObj.filename}". ${formatTimestamp()}`,
         {
-          closeButton: true,
-          position: 'top-right',
+          id: toastId,
         }
       );
     });
 
     xhr.open(
       'POST',
-      `http://localhost:3001/api/drive/uploadFiles`
-      // `${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/api/drive/uploadFiles`
+      `${process.env.NEXT_PUBLIC_WEB_SOCKET_URI}/api/drive/uploadFiles`
     );
     xhr.setRequestHeader(
       'Authorization',
@@ -288,7 +285,6 @@ const UploadFileDialog = ({
   };
 
   const handleSave = () => {
-    // Implement your save logic here
     toast.success(`Files saved successfully. ${formatTimestamp()}`, {
       closeButton: true,
       position: 'top-right',
@@ -349,9 +345,13 @@ const UploadFileDialog = ({
               >
                 <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-28 flex items-center justify-center h-1 bg-gray-200 rounded-full">
                   <div
-                    className={`h-1 bg-primary rounded-full transition-all
-                        ${fileObj.status == 'error' ? 'bg-red-600' : ''}
-                        `}
+                    className={`h-1 ${
+                      fileObj.status === 'error'
+                        ? 'bg-red-600'
+                        : fileObj.status === 'done'
+                          ? 'bg-blue-600'
+                          : 'bg-primary'
+                    } rounded-full transition-all`}
                     style={{ width: `${fileObj.progress}%` }}
                   />
                 </div>
@@ -364,14 +364,12 @@ const UploadFileDialog = ({
                     height={100}
                     className="object-cover cursor-pointer"
                     onClick={() => {
-                      console.log('Opening attachment');
                       window.open(fileObj.webViewLink, '_blank');
                     }}
                   />
                 ) : (
                   <div
                     onClick={() => {
-                      console.log('Opening attachment');
                       window.open(fileObj.webViewLink, '_blank');
                     }}
                     className="p-2 rounded-md cursor-pointer w-full text-xs h-[120px] bg-muted flex items-center justify-center"
