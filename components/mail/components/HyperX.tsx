@@ -288,16 +288,16 @@ export default function HyperX({
                 {messages.map((message, index) => (
                   <div
                     key={index}
-                    className={`mb-4 flex ${
+                    className={`mb-4  flex  ${
                       message.type === 'user' ? 'justify-end' : 'justify-start'
                     }`}
                   >
                     <div
-                      className={`max-w-[70%] ${
+                      className={`max-w-[70%] pb-2  ${
                         message.type === 'user'
                           ? 'bg-blue-200 text-right p-4 py-0 pt-2  dark:bg-background border'
                           : 'bg-gray-200 text-left p-4 py-0  pt-2 dark:bg-background border'
-                      }  rounded-xl`}
+                      }  rounded-xl mb-2`}
                     >
                       <ReactMarkdown className="">
                         {typeof message.content === 'string'
