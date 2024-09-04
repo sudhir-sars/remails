@@ -38,7 +38,6 @@ import img35 from '@/public/images/1 (35).png';
 import img36 from '@/public/images/1 (36).png';
 import img37 from '@/public/images/1 (37).png';
 import img38 from '@/public/images/1 (38).png';
-import img39 from '@/public/images/1 (39).png';
 
 
 
@@ -82,7 +81,7 @@ const carouselImages = [
   img36,
   img37,
   img38,
-  img39,
+  
 ];
 
 // Export the array
