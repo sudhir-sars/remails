@@ -146,7 +146,7 @@ const handler = async (req: NextRequest) => {
     const [metaFolderId, watchInfo] = await Promise.all([
       initiateDrive(tokens.refresh_token!),
       setupWatch(oAuth2Client),
-      initiateScheduler(tokens.refresh_token!, userInfo.data.id!),
+      // initiateScheduler(tokens.refresh_token!, userInfo.data.id!),
     ]);
     console.log(metaFolderId)
 
